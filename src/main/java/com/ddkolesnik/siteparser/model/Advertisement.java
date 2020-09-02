@@ -2,6 +2,7 @@ package com.ddkolesnik.siteparser.model;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,15 +13,15 @@ import java.util.List;
 @Data
 public class Advertisement {
 
+    private String title;
+
     private String area;
 
-    private Double price;
+    private BigDecimal price;
 
     private String address;
 
     private List<String> stations = new ArrayList<>();
-
-    private String title;
 
     private String description;
 
