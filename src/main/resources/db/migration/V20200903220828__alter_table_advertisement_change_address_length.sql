@@ -1,1 +1,1 @@
-ALTER TABLE advertisement ALTER COLUMN address VARCHAR(100);
+ALTER TABLE advertisement ALTER COLUMN address TYPE varchar(100) USING stations::varchar;
