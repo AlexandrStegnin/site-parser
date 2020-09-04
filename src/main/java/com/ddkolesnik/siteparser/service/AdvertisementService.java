@@ -3,6 +3,7 @@ package com.ddkolesnik.siteparser.service;
 import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.repository.AdvertisementRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  */
 
 @Service
+@Transactional
 public class AdvertisementService {
 
     private final AdvertisementRepository advertisementRepository;
@@ -19,6 +21,7 @@ public class AdvertisementService {
         this.advertisementRepository = advertisementRepository;
     }
 
+    @Transactional
     public Advertisement create(Advertisement advertisement) {
         return advertisementRepository.save(advertisement);
     }
