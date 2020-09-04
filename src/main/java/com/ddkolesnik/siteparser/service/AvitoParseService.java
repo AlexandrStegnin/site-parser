@@ -59,14 +59,14 @@ public class AvitoParseService {
             } else if (category == AdvertisementCategory.OTHER && advertisementType == AdvertisementType.RENT) {
                 url = UrlUtils.getOtherCategoriesRentUrl(pageNumber);
             }
-//            if (i == pageNumber) {
-//                i = calculateTotalPages(url);
-//            }
+            if (i == pageNumber) {
+                i = calculateTotalPages(url);
+            }
+            log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
             links.addAll(getLinks(url));
             pageNumber++;
         }
-        List<Advertisement> advertisements = getAdvertisements(links, advertisementType);
-        return advertisements;
+        return getAdvertisements(links, advertisementType);
     }
 
     /**
@@ -92,6 +92,7 @@ public class AvitoParseService {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return links;
         }
+        log.info("Итого собрано ссылок [{} шт]", links.size());
         return links;
     }
 
@@ -108,10 +109,6 @@ public class AvitoParseService {
         Advertisement advertisement;
         try {
             Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            log.error(String.format("Произошла ошибка: [%s]", e));
-        }
-        try {
             Document document = Jsoup.connect(url).get();
 
             advertisement = new Advertisement();
@@ -125,7 +122,7 @@ public class AvitoParseService {
             advertisement.setDescription(getDescription(document));
             advertisement.setDateCreate(getDateCreate(document));
             setSellerInfo(document, advertisement);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return null;
         }
@@ -144,6 +141,7 @@ public class AvitoParseService {
         int linksCount = urls.size();
         int counter = 0;
         while (counter < linksCount) {
+            log.info("Собираем {} из {} объявлений", counter + 1, linksCount);
             Advertisement advertisement = parseAdvertisement(urls.get(counter), advertisementType);
             if (advertisement != null) {
                 advertisements.add(advertisement);
@@ -323,12 +321,10 @@ public class AvitoParseService {
         int totalAdvertisements;
         int totalPages;
         try {
-            Document document = Jsoup.connect(url)
-                    .timeout(2_000)
-                    .get();
+            Document document = Jsoup.connect(url).get();
             Element advCountEl = document.select("[data-marker=page-title/count]").first();
             if (advCountEl != null) {
-                String advCount = advCountEl.text();
+                String advCount = advCountEl.text().trim().replaceAll("\\s", "");
                 try {
                     totalAdvertisements = Integer.parseInt(advCount);
                     totalPages = totalAdvertisements / 56;
