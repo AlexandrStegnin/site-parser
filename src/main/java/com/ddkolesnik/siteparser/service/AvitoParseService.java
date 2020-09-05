@@ -81,7 +81,7 @@ public class AvitoParseService {
         Document document;
         try {
             enableSSLSocket();
-            Thread.sleep(1_500);
+            Thread.sleep(1_000);
             document = Jsoup.connect(url).get();
             document.select("a.snippet-link").forEach(a -> {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
