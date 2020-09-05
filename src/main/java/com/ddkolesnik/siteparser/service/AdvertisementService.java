@@ -34,4 +34,8 @@ public class AdvertisementService {
         return advertisementRepository.count();
     }
 
+    public void deleteAll() {
+        advertisementRepository.deleteAll();
+    }
+
 }
