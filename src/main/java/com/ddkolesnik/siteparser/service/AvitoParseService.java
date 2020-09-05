@@ -66,6 +66,7 @@ public class AvitoParseService {
             links.addAll(getLinks(url));
             pageNumber++;
         }
+        log.info("Итого собрано ссылок [{} шт]", links.size());
         return getAdvertisements(links, advertisementType);
     }
 
@@ -80,6 +81,7 @@ public class AvitoParseService {
         Document document;
         try {
             enableSSLSocket();
+            Thread.sleep(1_500);
             document = Jsoup.connect(url).get();
             document.select("a.snippet-link").forEach(a -> {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
@@ -88,11 +90,10 @@ public class AvitoParseService {
                     links.add(href.trim());
                 }
             });
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return links;
         }
-        log.info("Итого собрано ссылок [{} шт]", links.size());
         return links;
     }
 
@@ -108,7 +109,7 @@ public class AvitoParseService {
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(1_500);
             Document document = Jsoup.connect(url).get();
 
             advertisement = new Advertisement();
