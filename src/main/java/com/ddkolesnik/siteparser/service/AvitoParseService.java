@@ -45,7 +45,7 @@ public class AvitoParseService {
      * @param pageNumber номер страницы
      * @return список объявлений
      */
-    public List<Advertisement> parse(AdvertisementCategory category, AdvertisementType advertisementType, int pageNumber) {
+    public int parse(AdvertisementCategory category, AdvertisementType advertisementType, int pageNumber) {
         int i = pageNumber;
         List<String> links = new ArrayList<>();
         String url = "";
@@ -102,9 +102,8 @@ public class AvitoParseService {
      *
      * @param url ссылка на страницу с объявлением
      * @param advertisementType вид объявления
-     * @return сформированное объявление
      */
-    public Advertisement parseAdvertisement(String url, AdvertisementType advertisementType) {
+    public void parseAdvertisement(String url, AdvertisementType advertisementType) {
         String link = url;
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
@@ -125,9 +124,9 @@ public class AvitoParseService {
             setSellerInfo(document, advertisement);
         } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
-            return null;
+            return;
         }
-        return advertisementService.create(advertisement);
+        advertisementService.create(advertisement);
     }
 
     /**
@@ -135,21 +134,16 @@ public class AvitoParseService {
      *
      * @param urls ссылки на объявления
      * @param advertisementType вид объявления
-     * @return список объявлений
      */
-    public List<Advertisement> getAdvertisements(List<String> urls, AdvertisementType advertisementType) {
-        List<Advertisement> advertisements = new ArrayList<>();
+    public int getAdvertisements(List<String> urls, AdvertisementType advertisementType) {
         int linksCount = urls.size();
         int counter = 0;
         while (counter < linksCount) {
             log.info("Собираем {} из {} объявлений", counter + 1, linksCount);
-            Advertisement advertisement = parseAdvertisement(urls.get(counter), advertisementType);
-            if (advertisement != null) {
-                advertisements.add(advertisement);
-            }
+            parseAdvertisement(urls.get(counter), advertisementType);
             counter++;
         }
-        return advertisements;
+        return linksCount;
     }
 
     /**
