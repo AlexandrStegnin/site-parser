@@ -29,4 +29,9 @@ public class AdvertisementService {
     public List<Advertisement> findAll() {
         return advertisementRepository.findAll();
     }
+
+    public long count() {
+        return advertisementRepository.count();
+    }
+
 }
