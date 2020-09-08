@@ -1,0 +1,1 @@
+ALTER TABLE adv_link ADD adv_type VARCHAR(10) DEFAULT NULL;
