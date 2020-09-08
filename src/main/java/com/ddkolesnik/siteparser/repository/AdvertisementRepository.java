@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
 
-    @Query("DELETE FROM Advertisement adv WHERE adv.creationTime < :currrentDate")
+    @Query("DELETE FROM Advertisement adv WHERE adv.creationTime < :currentDate")
     void deleteOld(@Param("currentDate") LocalDateTime currentDate);
 
 }
