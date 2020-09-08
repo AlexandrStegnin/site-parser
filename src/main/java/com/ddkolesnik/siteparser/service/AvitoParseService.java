@@ -12,13 +12,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.*;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,9 +75,8 @@ public class AvitoParseService {
         List<String> links = new ArrayList<>();
         Document document;
         try {
-            enableSSLSocket();
-            Thread.sleep(1_000);
-            document = Jsoup.connect(url).get();
+            Thread.sleep(2_000);
+            document = getDocument(url);
             document.select("a.snippet-link").forEach(a -> {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
                 String href = el.select("a[href]").attr("href");
@@ -90,7 +84,7 @@ public class AvitoParseService {
                     links.add(href.trim());
                 }
             });
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException | InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return links;
         }
@@ -108,8 +102,8 @@ public class AvitoParseService {
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
         try {
-            Thread.sleep(1_500);
-            Document document = Jsoup.connect(url).get();
+            Thread.sleep(3_000);
+            Document document = getDocument(url);
 
             advertisement = new Advertisement();
             advertisement.setAdvType(advertisementType.getTitle());
@@ -296,11 +290,14 @@ public class AvitoParseService {
     @SuppressWarnings("unchecked")
     private void setSellerAdvActual(Document document, Advertisement advertisement) {
         Elements activeAdvDivs = document.getElementsByClass("seller-info-favorite-seller-buttons");
+        String sellerAdvActual = "";
         if (activeAdvDivs != null) {
             String json = activeAdvDivs.select("[data-props]").attr("data-props");
             Gson gson = new Gson();
             Map<String, Object> asMap = gson.fromJson(json, Map.class);
-            String sellerAdvActual = (String) asMap.getOrDefault("summary", "");
+            if (asMap != null) {
+                sellerAdvActual = (String) asMap.getOrDefault("summary", "");
+            }
             advertisement.setSellerAdvActual(sellerAdvActual);
         }
     }
@@ -316,7 +313,7 @@ public class AvitoParseService {
         int totalAdvertisements;
         int totalPages;
         try {
-            Document document = Jsoup.connect(url).get();
+            Document document = getDocument(url);
             Element advCountEl = document.select("[data-marker=page-title/count]").first();
             if (advCountEl != null) {
                 String advCount = advCountEl.text().trim().replaceAll("\\s", "");
@@ -336,44 +333,15 @@ public class AvitoParseService {
         }
     }
 
-    private SSLSocketFactory socketFactory() {
-        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {
-            }
-
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {
-            }
-        }};
-
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustAllCerts, new SecureRandom());
-            return sslContext.getSocketFactory();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException("Failed to create a SSL socket factory", e);
-        }
-    }
-
-    public static void enableSSLSocket() throws KeyManagementException, NoSuchAlgorithmException {
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, new X509TrustManager[]{new X509TrustManager() {
-            public void checkClientTrusted(X509Certificate[] chain, String authType) {
-            }
-
-            public void checkServerTrusted(X509Certificate[] chain, String authType) {
-            }
-
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-            }
-        }}, new SecureRandom());
-        HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+    /**
+     * Получить объект страницы HTML
+     *
+     * @param url адрес страницы
+     * @return объект страницы HTML
+     * @throws IOException любая ошибка, связанная с открытием адреса страницы
+     */
+    private Document getDocument(String url) throws IOException {
+        return Jsoup.connect(url).referrer(url).get();
     }
 
 }
