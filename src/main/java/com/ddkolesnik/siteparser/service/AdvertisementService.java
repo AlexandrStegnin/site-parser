@@ -5,6 +5,7 @@ import com.ddkolesnik.siteparser.repository.AdvertisementRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -36,6 +37,10 @@ public class AdvertisementService {
 
     public void deleteAll() {
         advertisementRepository.deleteAll();
+    }
+
+    public void deleteOld(LocalDateTime currentDate) {
+        advertisementRepository.deleteOld(currentDate);
     }
 
 }
