@@ -133,6 +133,14 @@ public class AvitoParseService {
         int linksCount = urls.size();
         int counter = 0;
         while (counter < linksCount) {
+            if ((counter % 700) == 0) {
+                try {
+                    log.info("Засыпаем на 1 минуту");
+                    Thread.sleep(60_000);
+                } catch (InterruptedException e) {
+                    log.error("Произошла ошибка: {}", e.getLocalizedMessage());
+                }
+            }
             log.info("Собираем {} из {} объявлений", counter + 1, linksCount);
             parseAdvertisement(urls.get(counter), advertisementType);
             counter++;
