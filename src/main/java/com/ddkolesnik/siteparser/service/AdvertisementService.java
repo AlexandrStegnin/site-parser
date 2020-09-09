@@ -23,8 +23,8 @@ public class AdvertisementService {
     }
 
     @Transactional
-    public Advertisement create(Advertisement advertisement) {
-        return advertisementRepository.save(advertisement);
+    public void create(Advertisement advertisement) {
+        advertisementRepository.save(advertisement);
     }
 
     public List<Advertisement> findAll() {
