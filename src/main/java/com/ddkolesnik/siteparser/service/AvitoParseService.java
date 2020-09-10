@@ -75,7 +75,7 @@ public class AvitoParseService {
         List<String> links = new ArrayList<>();
         Document document;
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(3_000);
             document = getDocument(url);
             document.select("a.snippet-link").forEach(a -> {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
@@ -318,21 +318,25 @@ public class AvitoParseService {
      * @return приблизительное кол-во страниц
      */
     public int calculateTotalPages(String url) {
-        int totalAdvertisements;
         int totalPages;
         try {
             Document document = getDocument(url);
-            Element advCountEl = document.select("[data-marker=page-title/count]").first();
-            if (advCountEl != null) {
-                String advCount = advCountEl.text().trim().replaceAll("\\s", "");
-                try {
-                    totalAdvertisements = Integer.parseInt(advCount);
-                    totalPages = totalAdvertisements / 56;
-                    return ++totalPages;
-                } catch (NumberFormatException e) {
-                    log.error("Не удалось преобразовать полученный текст [{}] в кол-во объявлений. Ошибка: {}", advCount, e.getLocalizedMessage());
-                    return 0;
+            Element pageCountDiv = document.getElementsByClass("pagination-pages").first();
+            if (pageCountDiv != null) {
+                Element pageCountHref = pageCountDiv.getElementsByClass("pagination-pages").last();
+                if (pageCountHref != null) {
+                    String pCount = pageCountHref.getElementsByAttribute("href").last()
+                            .getElementsByAttribute("href").get(0).attr("href")
+                            .split("=")[1].split("&")[0];
+                    try {
+                        totalPages = Integer.parseInt(pCount);
+                        return totalPages;
+                    } catch (NumberFormatException e) {
+                        log.error("Не удалось преобразовать полученный текст [{}] в кол-во объявлений. Ошибка: {}", pCount, e.getLocalizedMessage());
+                        return 0;
+                    }
                 }
+
             }
             return 0;
         } catch (Exception e) {
