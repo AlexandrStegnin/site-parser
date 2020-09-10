@@ -6,6 +6,7 @@ import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -86,6 +87,8 @@ public class AvitoParseService {
                     links.add(href.trim());
                 }
             });
+        } catch (HttpStatusException e) {
+            waiting(e);
         } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return links;
@@ -118,11 +121,26 @@ public class AvitoParseService {
             advertisement.setDescription(getDescription(document));
             advertisement.setDateCreate(getDateCreate(document));
             setSellerInfo(document, advertisement);
+        } catch (HttpStatusException e) {
+            waiting(e);
+            return;
         } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return;
         }
         advertisementService.create(advertisement);
+    }
+
+    private void waiting(HttpStatusException e) {
+        if (e.getStatusCode() == 429) {
+            log.error("Слишком много запросов {}", e.getLocalizedMessage());
+            log.info("Засыпаем на 1 час для обхода блокировки");
+            try {
+                Thread.sleep(60 * 1000 * 60);
+            } catch (InterruptedException exception) {
+                log.error(String.format("Произошла ошибка: [%s]", e));
+            }
+        }
     }
 
     /**
