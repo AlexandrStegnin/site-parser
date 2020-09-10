@@ -32,6 +32,12 @@ public class ScheduledTask {
     }
 
     private int parseSale() {
+        try {
+            log.info("Засыпаем на 5 минут, чтобы обойти блокировку");
+            Thread.sleep(5 * 60_000);
+        } catch (InterruptedException e) {
+            log.error("Произошла ошибка: {}", e.getLocalizedMessage());
+        }
         int list1 = avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, 1);
         log.info("Объявления о ПРОДАЖЕ торговых площадей собраны [{} шт]", list1);
         try {
