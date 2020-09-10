@@ -4,7 +4,6 @@ import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Alexandr Stegnin
@@ -291,42 +289,8 @@ public class AvitoParseService {
     private void setSellerInfo(Document document, Advertisement advertisement) {
         Element sellerInfoCol = document.select("div.seller-info-col").first();
         if (sellerInfoCol != null) {
-            int elSize = sellerInfoCol.children().size();
             String sellerName = sellerInfoCol.child(0).text();
-            String sellerType = sellerInfoCol.child(1).text();
-            if (elSize > 2) {
-                Elements children = sellerInfoCol.child(2).children();
-                if (children.size() > 1) {
-                    String sellerAdvComplete = children.get(1).text().replace("\n", "");
-                    String sellerOnAvito = children.get(0).text().replace("\n", "");
-                    advertisement.setSellerAdvComplete(sellerAdvComplete);
-                    advertisement.setSellerOnAvito(sellerOnAvito);
-                }
-            }
             advertisement.setSellerName(sellerName);
-            advertisement.setSellerType(sellerType);
-        }
-        setSellerAdvActual(document, advertisement);
-    }
-
-    /**
-     * Добавить информацию о кол-ве актуальных объявлений
-     *
-     * @param document      HTML страница
-     * @param advertisement объявление
-     */
-    @SuppressWarnings("unchecked")
-    private void setSellerAdvActual(Document document, Advertisement advertisement) {
-        Elements activeAdvDivs = document.getElementsByClass("seller-info-favorite-seller-buttons");
-        String sellerAdvActual = "";
-        if (activeAdvDivs != null) {
-            String json = activeAdvDivs.select("[data-props]").attr("data-props");
-            Gson gson = new Gson();
-            Map<String, Object> asMap = gson.fromJson(json, Map.class);
-            if (asMap != null) {
-                sellerAdvActual = (String) asMap.getOrDefault("summary", "");
-            }
-            advertisement.setSellerAdvActual(sellerAdvActual);
         }
     }
 
