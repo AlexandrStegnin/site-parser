@@ -44,6 +44,7 @@ public class AvitoParseService {
         int i = pageNumber;
         List<String> links = new ArrayList<>();
         String url = "";
+        boolean start = true;
         while (pageNumber <= i) {
             if (category == AdvertisementCategory.TRADING_AREA && advertisementType == AdvertisementType.SALE) {
                 url = UrlUtils.getTradingAreaSaleUrl(pageNumber);
@@ -54,8 +55,9 @@ public class AvitoParseService {
             } else if (category == AdvertisementCategory.OTHER && advertisementType == AdvertisementType.RENT) {
                 url = UrlUtils.getOtherCategoriesRentUrl(pageNumber);
             }
-            if (i == pageNumber) {
+            if (start) {
                 i = calculateTotalPages(url);
+                start = false;
             }
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
             links.addAll(getLinks(url));
@@ -75,7 +77,7 @@ public class AvitoParseService {
         List<String> links = new ArrayList<>();
         Document document;
         try {
-            Thread.sleep(3_000);
+            Thread.sleep(5_000);
             document = getDocument(url);
             document.select("a.snippet-link").forEach(a -> {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
@@ -84,6 +86,8 @@ public class AvitoParseService {
                     links.add(href.trim());
                 }
             });
+        } catch (HttpStatusException e) {
+            waiting(e);
         } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return links;
@@ -102,7 +106,7 @@ public class AvitoParseService {
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
         try {
-            Thread.sleep(3_000);
+            Thread.sleep(5_000);
             Document document = getDocument(url);
 
             advertisement = new Advertisement();
@@ -116,11 +120,26 @@ public class AvitoParseService {
             advertisement.setDescription(getDescription(document));
             advertisement.setDateCreate(getDateCreate(document));
             setSellerInfo(document, advertisement);
+        } catch (HttpStatusException e) {
+            waiting(e);
+            return;
         } catch (IOException | InterruptedException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return;
         }
         advertisementService.create(advertisement);
+    }
+
+    private void waiting(HttpStatusException e) {
+        if (e.getStatusCode() == 429) {
+            log.error("Слишком много запросов {}", e.getLocalizedMessage());
+            log.info("Засыпаем на 1 час для обхода блокировки");
+            try {
+                Thread.sleep(60 * 1000 * 60);
+            } catch (InterruptedException exception) {
+                log.error(String.format("Произошла ошибка: [%s]", e));
+            }
+        }
     }
 
     /**
@@ -133,10 +152,10 @@ public class AvitoParseService {
         int linksCount = urls.size();
         int counter = 0;
         while (counter < linksCount) {
-            if ((counter % 700) == 0) {
+            if ((counter % 500) == 0) {
                 try {
-                    log.info("Засыпаем на 1 минуту");
-                    Thread.sleep(60_000);
+                    log.info("Засыпаем на 5 минут, чтобы обойти блокировку");
+                    Thread.sleep(5 * 60_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
