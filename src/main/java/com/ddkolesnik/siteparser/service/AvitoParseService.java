@@ -44,6 +44,7 @@ public class AvitoParseService {
         int i = pageNumber;
         List<String> links = new ArrayList<>();
         String url = "";
+        boolean start = true;
         while (pageNumber <= i) {
             if (category == AdvertisementCategory.TRADING_AREA && advertisementType == AdvertisementType.SALE) {
                 url = UrlUtils.getTradingAreaSaleUrl(pageNumber);
@@ -54,8 +55,9 @@ public class AvitoParseService {
             } else if (category == AdvertisementCategory.OTHER && advertisementType == AdvertisementType.RENT) {
                 url = UrlUtils.getOtherCategoriesRentUrl(pageNumber);
             }
-            if (i == pageNumber) {
+            if (start) {
                 i = calculateTotalPages(url);
+                start = false;
             }
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
             links.addAll(getLinks(url));
