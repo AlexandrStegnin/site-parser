@@ -1,0 +1,1 @@
+ALTER TABLE advertisement ADD city VARCHAR(20) DEFAULT NULL;
