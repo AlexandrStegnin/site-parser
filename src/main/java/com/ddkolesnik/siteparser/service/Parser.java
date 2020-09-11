@@ -40,6 +40,103 @@ public class Parser {
 
      */
 
+    /**
+     * Собрать объявления об аренде
+     *
+     * @return кол-во объявлений
+     */
+    public int parseRent() {
+        int count = parseTradingAreaRent();
+        count += parseOtherRent();
+        return count;
+    }
+
+    /**
+     * Собрать объявления о продаже
+     *
+     * @return кол-во объявлений
+     */
+    public int parseSale() {
+        int count = parseTradingAreaSale();
+        count += parseOtherSale();
+        return count;
+    }
+
+    /**
+     * Получить объявления об АРЕНДЕ в категории торговые площади
+     *
+     * @return кол-во объявлений
+     */
+    private int parseTradingAreaRent() {
+        int totalCount = 0;
+        try {
+            for (City city : City.values()) {
+                totalCount = totalCount + parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.RENT, city);
+                Thread.sleep(5_000);
+            }
+            return totalCount;
+        } catch (IOException | InterruptedException e) {
+            log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Получить объявления о ПРОДАЖЕ в категории торговые площади
+     *
+     * @return кол-во объявлений
+     */
+    private int parseTradingAreaSale() {
+        int totalCount = 0;
+        try {
+            for (City city : City.values()) {
+                totalCount = totalCount + parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, city);
+                Thread.sleep(5_000);
+            }
+            return totalCount;
+        } catch (IOException | InterruptedException e) {
+            log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Получить объявления об АРЕНДЕ в остальных категориях
+     *
+     * @return кол-во объявлений
+     */
+    private int parseOtherRent() {
+        int totalCount = 0;
+        try {
+            for (City city : City.values()) {
+                totalCount = totalCount + parse(AdvertisementCategory.OTHER, AdvertisementType.RENT, city);
+                Thread.sleep(5_000);
+            }
+            return totalCount;
+        } catch (IOException | InterruptedException e) {
+            log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Получить объявления о ПРОДАЖЕ в остальных категориях
+     *
+     * @return кол-во объявлений
+     */
+    private int parseOtherSale() {
+        int totalCount = 0;
+        try {
+            for (City city : City.values()) {
+                totalCount = totalCount + parse(AdvertisementCategory.OTHER, AdvertisementType.SALE, city);
+                Thread.sleep(5_000);
+            }
+            return totalCount;
+        } catch (IOException | InterruptedException e) {
+            log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
+            return 0;
+        }
+    }
 
     /**
      * Собрать объявления с авито
@@ -50,7 +147,7 @@ public class Parser {
      * @return кол-во собранных объявлений
      * @throws IOException если не смогли распарсить документ (HTML)
      */
-    public int parse(AdvertisementCategory category, AdvertisementType type, City city) throws IOException {
+    private int parse(AdvertisementCategory category, AdvertisementType type, City city) throws IOException {
         List<Advertisement> advertisements = new ArrayList<>();
         String url = getUrl(category, type, city);
         int totalPages = getTotalPages(url);
