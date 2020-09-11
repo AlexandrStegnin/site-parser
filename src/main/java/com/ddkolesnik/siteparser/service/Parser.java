@@ -161,6 +161,11 @@ public class Parser {
         int totalPages = getTotalPages(url);
         int counter = 1;
         while (counter <= totalPages) {
+            try {
+                Thread.sleep(1_000);
+            } catch (InterruptedException e) {
+                log.error("Произошла ошибка: {}", e.getLocalizedMessage());
+            }
             String pagePart = "&p=" + counter;
             advertisements.addAll(getAdvertisements(url.concat(pagePart), type, city));
             counter++;
@@ -227,7 +232,7 @@ public class Parser {
             }
         }
         if (area == null) {
-            pattern = Pattern.compile("\\d+[.|,]*\\d*\\s*(метр[а|ов])");
+            pattern = Pattern.compile("\\d+[.|,]*\\d*\\s*(метр[а|ов]*)");
             matcher = pattern.matcher(title);
             while (matcher.find()) {
                 area = title.substring(matcher.start(), matcher.end());
