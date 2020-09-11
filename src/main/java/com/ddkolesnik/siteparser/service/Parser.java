@@ -71,9 +71,11 @@ public class Parser {
         int totalCount = 0;
         try {
             for (City city : City.values()) {
+                log.info("Собираем объявления об АРЕНДЕ торговых площадей по городу {}", city.getDescription());
                 totalCount = totalCount + parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.RENT, city);
                 Thread.sleep(5_000);
             }
+            log.info("Собрано объявлений [{} шт]", totalCount);
             return totalCount;
         } catch (IOException | InterruptedException e) {
             log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
@@ -90,9 +92,11 @@ public class Parser {
         int totalCount = 0;
         try {
             for (City city : City.values()) {
+                log.info("Собираем объявления о ПРОДАЖЕ торговых площадей по городу {}", city.getDescription());
                 totalCount = totalCount + parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, city);
                 Thread.sleep(5_000);
             }
+            log.info("Собрано объявлений [{} шт]", totalCount);
             return totalCount;
         } catch (IOException | InterruptedException e) {
             log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
@@ -109,9 +113,11 @@ public class Parser {
         int totalCount = 0;
         try {
             for (City city : City.values()) {
+                log.info("Собираем объявления об АРЕНДЕ в остальных категоряих по городу {}", city.getDescription());
                 totalCount = totalCount + parse(AdvertisementCategory.OTHER, AdvertisementType.RENT, city);
                 Thread.sleep(5_000);
             }
+            log.info("Собрано объявлений [{} шт]", totalCount);
             return totalCount;
         } catch (IOException | InterruptedException e) {
             log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
@@ -128,9 +134,11 @@ public class Parser {
         int totalCount = 0;
         try {
             for (City city : City.values()) {
+                log.info("Собираем объявления о ПРОДАЖЕ в остальных категориях по городу {}", city.getDescription());
                 totalCount = totalCount + parse(AdvertisementCategory.OTHER, AdvertisementType.SALE, city);
                 Thread.sleep(5_000);
             }
+            log.info("Собрано объявлений [{} шт]", totalCount);
             return totalCount;
         } catch (IOException | InterruptedException e) {
             log.error("Произошла ошибка: [{}]", e.getLocalizedMessage());
@@ -186,6 +194,7 @@ public class Parser {
             advertisement.setStations(getStation(ad));
             advertisement.setSellerName(getSellerName(ad));
             advertisement.setDateCreate(getDateCreate(ad));
+            advertisement.setDescription(getDescription(ad));
             advertisement.setAdvType(type.getTitle());
             advertisement.setCity(city.getDescription());
             advertisementService.create(advertisement);
@@ -201,11 +210,37 @@ public class Parser {
      * @return площадь
      */
     private String extractArea(String title) {
-        String area = "";
-        Pattern pattern = Pattern.compile("\\d+\\.*\\d+\\s[\\W]\u00B2|\\d+\\.*\\d+\\s[\\W][2]");
+        String area = null;
+        Pattern pattern = Pattern.compile("\\d+(.|,|\\s)*\\d+\\s*[\\W{1,2}][\u00B2|2]");
         Matcher matcher = pattern.matcher(title);
         while (matcher.find()) {
-            area = title.substring(matcher.start(), matcher.end());
+            area = title.substring(matcher.start(), matcher.end()).replaceAll("\\s", "");
+        }
+        if (area != null) {
+            area = area.substring(0, (area.length() - 2));
+        } else {
+            pattern = Pattern.compile("\\d+[.|,]*\\d*\\s*(кв\\.*м*.*)");
+            matcher = pattern.matcher(title);
+            while (matcher.find()) {
+                area = title.substring(matcher.start(), matcher.end());
+                area = area.split("\\s")[0];
+            }
+        }
+        if (area == null) {
+            pattern = Pattern.compile("\\d+[.|,]*\\d*\\s*(метр[а|ов])");
+            matcher = pattern.matcher(title);
+            while (matcher.find()) {
+                area = title.substring(matcher.start(), matcher.end());
+                area = area.split("\\s")[0];
+            }
+        }
+        if (area == null) {
+            pattern = Pattern.compile("\\d+[.|,]\\d+");
+            matcher = pattern.matcher(title);
+            while (matcher.find()) {
+                area = title.substring(matcher.start(), matcher.end());
+                area = area.split("\\s")[0];
+            }
         }
         return area;
     }
@@ -388,6 +423,21 @@ public class Parser {
             }
         }
         return dateCreate;
+    }
+
+    /**
+     * Получить описание объявления
+     *
+     * @param element HTML элемент
+     * @return описание объявления
+     */
+    private String getDescription(Element element) {
+        String description = null;
+        Element descriptionEl = element.selectFirst("div.snippet-text");
+        if (descriptionEl != null) {
+            description = descriptionEl.text().trim();
+        }
+        return description;
     }
 
     /**
