@@ -81,6 +81,7 @@ public class Parser {
             advertisement.setDateCreate(getDateCreate(ad));
             advertisement.setAdvType(type.getTitle());
             advertisement.setCity(city.getDescription());
+            advertisementService.create(advertisement);
             advertisements.add(advertisement);
         }
         return advertisements;
