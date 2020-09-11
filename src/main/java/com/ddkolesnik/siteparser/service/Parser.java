@@ -40,6 +40,16 @@ public class Parser {
 
      */
 
+
+    /**
+     * Собрать объявления с авито
+     *
+     * @param category категория объявления
+     * @param type вид объявления
+     * @param city город объявлений
+     * @return кол-во собранных объявлений
+     * @throws IOException если не смогли распарсить документ (HTML)
+     */
     public int parse(AdvertisementCategory category, AdvertisementType type, City city) throws IOException {
         List<Advertisement> advertisements = new ArrayList<>();
         String url = getUrl(category, type, city);
