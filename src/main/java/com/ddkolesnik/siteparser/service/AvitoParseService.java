@@ -3,6 +3,7 @@ package com.ddkolesnik.siteparser.service;
 import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
+import com.ddkolesnik.siteparser.utils.City;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -29,7 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class AvitoParseService {
 
-    private Map<String, String> cookieMap = new HashMap<>();
+    private final Map<String, String> cookieMap = new HashMap<>();
 
     private final AdvertisementService advertisementService;
 
@@ -42,30 +43,18 @@ public class AvitoParseService {
      *
      * @param category          категория объявления
      * @param advertisementType вид объявления
-     * @param pageNumber        номер страницы
      * @return список объявлений
      */
-    public int parse(AdvertisementCategory category, AdvertisementType advertisementType, int pageNumber) {
-        int i = pageNumber;
+    public int parse(AdvertisementCategory category, AdvertisementType advertisementType, City city) {
+        log.info("Начинаем собирать [{}] :: [{}] :: [{}]", category.getTitle(), advertisementType.getTitle(), city.getDescription());
         List<String> links = new ArrayList<>();
-        String url = "";
-        boolean start = true;
+        String url = getUrl(category, advertisementType, city);
+        String pagePart = "&p=";
+        int i = calculateTotalPages(url);
+        int pageNumber = 1;
         while (pageNumber <= i) {
-            if (category == AdvertisementCategory.TRADING_AREA && advertisementType == AdvertisementType.SALE) {
-                url = UrlUtils.getTradingAreaSaleUrl(pageNumber);
-            } else if (category == AdvertisementCategory.TRADING_AREA && advertisementType == AdvertisementType.RENT) {
-                url = UrlUtils.getTradingAreaRentUrl(pageNumber);
-            } else if (category == AdvertisementCategory.OTHER && advertisementType == AdvertisementType.SALE) {
-                url = UrlUtils.getOtherCategoriesSaleUrl(pageNumber);
-            } else if (category == AdvertisementCategory.OTHER && advertisementType == AdvertisementType.RENT) {
-                url = UrlUtils.getOtherCategoriesRentUrl(pageNumber);
-            }
-            if (start) {
-                i = calculateTotalPages(url);
-                start = false;
-            }
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
-            links.addAll(getLinks(url));
+            links.addAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber))));
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
@@ -361,6 +350,28 @@ public class AvitoParseService {
         String[] agents = {"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Safari/605.1.15",
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36"};
         return agents[number];
+    }
+
+    /**
+     * Получить ссылку для обработки в зависимости от фильтров
+     *
+     * @param category категория объявления
+     * @param type вид объявления
+     * @param city город объявления
+     * @return ссылка
+     */
+    private String getUrl(AdvertisementCategory category, AdvertisementType type, City city) {
+        String url = "";
+        if (category == AdvertisementCategory.TRADING_AREA && type == AdvertisementType.SALE) {
+            url = UrlUtils.getTradingAreaSaleUrl(city);
+        } else if (category == AdvertisementCategory.TRADING_AREA && type == AdvertisementType.RENT) {
+            url = UrlUtils.getTradingAreaRentUrl(city);
+        } else if (category == AdvertisementCategory.OTHER && type == AdvertisementType.SALE) {
+            url = UrlUtils.getOtherCategoriesSaleUrl(city);
+        } else if (category == AdvertisementCategory.OTHER && type == AdvertisementType.RENT) {
+            url = UrlUtils.getOtherCategoriesRentUrl(city);
+        }
+        return url;
     }
 
 }
