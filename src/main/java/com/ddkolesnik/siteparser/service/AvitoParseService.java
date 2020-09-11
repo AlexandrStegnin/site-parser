@@ -5,6 +5,7 @@ import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,7 +16,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Alexandr Stegnin
@@ -24,6 +28,8 @@ import java.util.List;
 @Slf4j
 @Service
 public class AvitoParseService {
+
+    private Map<String, String> cookieMap = new HashMap<>();
 
     private final AdvertisementService advertisementService;
 
@@ -34,9 +40,9 @@ public class AvitoParseService {
     /**
      * Собрать и записать информацию по объявлениям
      *
-     * @param category категория объявления
+     * @param category          категория объявления
      * @param advertisementType вид объявления
-     * @param pageNumber номер страницы
+     * @param pageNumber        номер страницы
      * @return список объявлений
      */
     public int parse(AdvertisementCategory category, AdvertisementType advertisementType, int pageNumber) {
@@ -76,7 +82,7 @@ public class AvitoParseService {
         List<String> links = new ArrayList<>();
         Document document;
         try {
-            Thread.sleep(5_000);
+            Thread.sleep(1_500);
             document = getDocument(url);
             document.select("a.snippet-link").forEach(a -> {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
@@ -97,7 +103,7 @@ public class AvitoParseService {
     /**
      * Получить информацию об объявлении со страницы
      *
-     * @param url ссылка на страницу с объявлением
+     * @param url               ссылка на страницу с объявлением
      * @param advertisementType вид объявления
      */
     public void parseAdvertisement(String url, AdvertisementType advertisementType) {
@@ -105,7 +111,7 @@ public class AvitoParseService {
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
         try {
-            Thread.sleep(5_000);
+            Thread.sleep(3_000);
             Document document = getDocument(url);
 
             advertisement = new Advertisement();
@@ -144,7 +150,7 @@ public class AvitoParseService {
     /**
      * Получить список объявлений из массива ссылок
      *
-     * @param urls ссылки на объявления
+     * @param urls              ссылки на объявления
      * @param advertisementType вид объявления
      */
     public int getAdvertisements(List<String> urls, AdvertisementType advertisementType) {
@@ -153,8 +159,8 @@ public class AvitoParseService {
         while (counter < linksCount) {
             if ((counter % 500) == 0) {
                 try {
-                    log.info("Засыпаем на 5 минут, чтобы обойти блокировку");
-                    Thread.sleep(5 * 60_000);
+                    log.info("Засыпаем на 1 минуту, чтобы обойти блокировку");
+                    Thread.sleep(60_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
@@ -337,7 +343,24 @@ public class AvitoParseService {
      * @throws IOException любая ошибка, связанная с открытием адреса страницы
      */
     private Document getDocument(String url) throws IOException {
-        return Jsoup.connect(url).referrer(url).get();
+        int number = ThreadLocalRandom.current().nextInt(0, 1);
+        Connection.Response response = Jsoup.connect(url)
+                .userAgent(switchUserAgent(number))
+                .referrer(url)
+                .cookies(cookieMap)
+                .method(Connection.Method.GET)
+                .execute();
+
+        cookieMap.clear();
+        cookieMap.putAll(response.cookies());
+
+        return response.parse();
+    }
+
+    private String switchUserAgent(int number) {
+        String[] agents = {"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Safari/605.1.15",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36"};
+        return agents[number];
     }
 
 }
