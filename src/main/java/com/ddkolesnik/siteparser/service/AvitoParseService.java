@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alexandr Stegnin
@@ -49,14 +50,14 @@ public class AvitoParseService {
      */
     public int parse(AdvertisementCategory category, AdvertisementType advertisementType, City city) {
         log.info("Начинаем собирать [{}] :: [{}] :: [{}]", category.getTitle(), advertisementType.getTitle(), city.getDescription());
-        List<String> links = new ArrayList<>();
+        Map<String, LocalDate> links = new HashMap<>();
         String url = getUrl(category, advertisementType, city);
         String pagePart = "&p=";
         int i = getTotalPages(url);
         int pageNumber = 1;
         while (pageNumber <= i) {
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
-            links.addAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber))));
+            links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber))));
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
@@ -69,8 +70,8 @@ public class AvitoParseService {
      * @param url ссылка на страницу
      * @return список ссылок на объявления
      */
-    public List<String> getLinks(String url) {
-        List<String> links = new ArrayList<>();
+    public Map<String, LocalDate> getLinks(String url) {
+        Map<String, LocalDate> links = new HashMap<>();
         Document document;
         try {
             Thread.sleep(1_500);
@@ -79,7 +80,8 @@ public class AvitoParseService {
                 Elements el = a.getElementsByAttributeValue("itemprop", "url");
                 String href = el.select("a[href]").attr("href");
                 if (!href.trim().isEmpty()) {
-                    links.add(href.trim());
+                    LocalDate advCreateDate = extractDate(a);
+                    links.put(href.trim(), advCreateDate);
                 }
             });
         } catch (HttpStatusException e) {
@@ -93,11 +95,11 @@ public class AvitoParseService {
 
     /**
      * Получить информацию об объявлении со страницы
-     *
-     * @param url               ссылка на страницу с объявлением
+     *  @param url               ссылка на страницу с объявлением
      * @param advertisementType вид объявления
+     * @param advCreateDate дата создания объявления
      */
-    public void parseAdvertisement(String url, AdvertisementType advertisementType) {
+    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate advCreateDate) {
         String link = url;
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
@@ -144,11 +146,11 @@ public class AvitoParseService {
      * @param urls              ссылки на объявления
      * @param advertisementType вид объявления
      */
-    public int getAdvertisements(List<String> urls, AdvertisementType advertisementType) {
+    public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType) {
         int linksCount = urls.size();
-        int counter = 0;
-        while (counter < linksCount) {
-            if ((counter % 500) == 0) {
+        AtomicInteger counter = new AtomicInteger();
+        urls.forEach((url, date) -> {
+            if ((counter.get() % 500) == 0) {
                 try {
                     log.info("Засыпаем на 1 минуту, чтобы обойти блокировку");
                     Thread.sleep(60 * 1_000);
@@ -156,10 +158,10 @@ public class AvitoParseService {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
             }
-            log.info("Собираем {} из {} объявлений", counter + 1, linksCount);
-            parseAdvertisement(urls.get(counter), advertisementType);
-            counter++;
-        }
+            log.info("Собираем {} из {} объявлений", counter.get() + 1, linksCount);
+            parseAdvertisement(url, advertisementType, date);
+            counter.getAndIncrement();
+        });
         return linksCount;
     }
 
@@ -414,15 +416,23 @@ public class AvitoParseService {
     /**
      * Получить дату публикации объявления
      *
-     * @param dateCreate дата в строковом формате
+     * @param element HTML элемент
      * @return дата публикации
      */
-    private LocalDate extractDate(String dateCreate) {
+    private LocalDate extractDate(Element element) {
+        Element divDateEl = element.parent().parent().parent().selectFirst("div.snippet-date-info");
+        if (divDateEl == null) {
+            return null;
+        }
+        String dateCreate = divDateEl.attr("data-tooltip");
+        if (dateCreate == null || dateCreate.isEmpty()) {
+            return null;
+        }
         SimpleDateFormat format = new SimpleDateFormat("dd MMM hh:mm", Locale.forLanguageTag("RU"));
         try {
             Date parsedDate = format.parse(dateCreate);
             LocalDate finalDate = parsedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            return LocalDate.of(2020, finalDate.getMonth(), finalDate.getDayOfMonth());
+            return LocalDate.of(LocalDate.now().getYear(), finalDate.getMonth(), finalDate.getDayOfMonth());
         } catch (ParseException e) {
             log.error("Произошла ошибка: {}", e.getLocalizedMessage());
             return null;
