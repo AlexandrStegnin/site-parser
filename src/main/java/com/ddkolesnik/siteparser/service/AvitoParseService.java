@@ -46,18 +46,24 @@ public class AvitoParseService {
      *
      * @param category          категория объявления
      * @param advertisementType вид объявления
+     * @param maxPublishDate дата последней публикации в базе данных
      * @return список объявлений
      */
-    public int parse(AdvertisementCategory category, AdvertisementType advertisementType, City city) {
+    public int parse(AdvertisementCategory category, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
         log.info("Начинаем собирать [{}] :: [{}] :: [{}]", category.getTitle(), advertisementType.getTitle(), city.getDescription());
         Map<String, LocalDate> links = new HashMap<>();
         String url = getUrl(category, advertisementType, city);
         String pagePart = "&p=";
-        int i = getTotalPages(url);
+        int totalPages;
+        if (maxPublishDate == null) {
+            totalPages = getTotalPages(url);
+        } else {
+            totalPages = 3;
+        }
         int pageNumber = 1;
-        while (pageNumber <= i) {
-            log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
-            links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber))));
+        while (pageNumber <= totalPages) {
+            log.info("Собираем ссылки со страницы {} из {}", pageNumber, totalPages);
+            links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber)), maxPublishDate));
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
@@ -68,22 +74,27 @@ public class AvitoParseService {
      * Собрать ссылки на объявления со страницы
      *
      * @param url ссылка на страницу
+     * @param maxPublishDate дата последней публикации в базе данных
      * @return список ссылок на объявления
      */
-    public Map<String, LocalDate> getLinks(String url) {
+    public Map<String, LocalDate> getLinks(String url, LocalDate maxPublishDate) {
         Map<String, LocalDate> links = new HashMap<>();
         Document document;
         try {
             Thread.sleep(1_500);
             document = getDocument(url);
-            document.select("a.snippet-link").forEach(a -> {
-                Elements el = a.getElementsByAttributeValue("itemprop", "url");
+            Elements aSnippetLinks = document.select("a.snippet-link");
+            for (Element element : aSnippetLinks) {
+                Elements el = element.getElementsByAttributeValue("itemprop", "url");
                 String href = el.select("a[href]").attr("href");
                 if (!href.trim().isEmpty()) {
-                    LocalDate advCreateDate = extractDate(a);
+                    LocalDate advCreateDate = extractDate(element);
+                    if (advCreateDate != null && advCreateDate.isBefore(maxPublishDate)) {
+                        return links;
+                    }
                     links.put(href.trim(), advCreateDate);
                 }
-            });
+            }
         } catch (HttpStatusException e) {
             waiting(e);
         } catch (IOException | InterruptedException e) {
