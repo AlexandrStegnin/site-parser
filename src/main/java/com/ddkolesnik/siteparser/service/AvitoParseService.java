@@ -5,6 +5,7 @@ import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.City;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
@@ -50,7 +51,7 @@ public class AvitoParseService {
         List<String> links = new ArrayList<>();
         String url = getUrl(category, advertisementType, city);
         String pagePart = "&p=";
-        int i = calculateTotalPages(url);
+        int i = getTotalPages(url);
         int pageNumber = 1;
         while (pageNumber <= i) {
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, i);
@@ -100,7 +101,7 @@ public class AvitoParseService {
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
         try {
-            Thread.sleep(3_000);
+            Thread.sleep(1_500);
             Document document = getDocument(url);
 
             advertisement = new Advertisement();
@@ -127,9 +128,9 @@ public class AvitoParseService {
     private void waiting(HttpStatusException e) {
         if (e.getStatusCode() == 429) {
             log.error("Слишком много запросов {}", e.getLocalizedMessage());
-            log.info("Засыпаем на 1 час для обхода блокировки");
+            log.info("Засыпаем на 30 мин для обхода блокировки");
             try {
-                Thread.sleep(60 * 1000 * 60);
+                Thread.sleep(30 * 1000 * 60);
             } catch (InterruptedException exception) {
                 log.error(String.format("Произошла ошибка: [%s]", e));
             }
@@ -149,7 +150,7 @@ public class AvitoParseService {
             if ((counter % 500) == 0) {
                 try {
                     log.info("Засыпаем на 1 минуту, чтобы обойти блокировку");
-                    Thread.sleep(60_000);
+                    Thread.sleep(60 * 1_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
@@ -168,7 +169,7 @@ public class AvitoParseService {
      * @return название объявления
      */
     private String getTitle(Document document) {
-        String title = "";
+        String title = null;
         Element titleEl = document.select("span.title-info-title-text").first();
         if (titleEl != null) {
             title = titleEl.text();
@@ -183,7 +184,7 @@ public class AvitoParseService {
      * @return площадь объявления
      */
     private String getArea(Document document) {
-        String area = "";
+        String area = null;
         Elements areaEl = document.select("div.item-params");
         if (areaEl != null) {
             Element areaFirstEl = areaEl.select("span").first();
@@ -217,10 +218,10 @@ public class AvitoParseService {
      * @return адрес объекта
      */
     private String getAddress(Document document) {
-        String address = "";
+        String address = null;
         Element addressEl = document.select("span.item-address__string").first();
         if (addressEl != null) {
-            address = addressEl.text().trim().replace(';', ' ');
+            address = addressEl.text().trim();
         }
         return address;
     }
@@ -238,7 +239,7 @@ public class AvitoParseService {
             Elements stationsArrayItems = stationsArraySpan.select("span.item-address-georeferences-item");
             if (stationsArrayItems != null) {
                 for (Element stationEl : stationsArrayItems) {
-                    stations.add(stationEl.text().trim().replace(";", " "));
+                    stations.add(stationEl.text().trim());
                 }
             }
         }
@@ -255,7 +256,7 @@ public class AvitoParseService {
         String description = "";
         Element descriptionEl = document.selectFirst("div.item-description");
         if (descriptionEl != null) {
-            description = descriptionEl.text().trim().replace(";", " ");
+            description = descriptionEl.text().trim();
         }
         return description;
     }
@@ -284,19 +285,52 @@ public class AvitoParseService {
     private void setSellerInfo(Document document, Advertisement advertisement) {
         Element sellerInfoCol = document.select("div.seller-info-col").first();
         if (sellerInfoCol != null) {
+            int elSize = sellerInfoCol.children().size();
             String sellerName = sellerInfoCol.child(0).text();
+            String sellerType = sellerInfoCol.child(1).text();
+            if (elSize > 2) {
+                Elements children = sellerInfoCol.child(2).children();
+                if (children.size() > 1) {
+                    String sellerAdvComplete = children.get(1).text().replace("\n", "");
+                    String sellerOnAvito = children.get(0).text().replace("\n", "");
+                    advertisement.setSellerAdvComplete(sellerAdvComplete);
+                    advertisement.setSellerOnAvito(sellerOnAvito);
+                }
+            }
             advertisement.setSellerName(sellerName);
+            advertisement.setSellerType(sellerType);
+        }
+        setSellerAdvActual(document, advertisement);
+    }
+
+    /**
+     * Добавить информацию о кол-ве актуальных объявлений
+     *
+     * @param document      HTML страница
+     * @param advertisement объявление
+     */
+    @SuppressWarnings("unchecked")
+    private void setSellerAdvActual(Document document, Advertisement advertisement) {
+        Elements activeAdvDivs = document.getElementsByClass("seller-info-favorite-seller-buttons");
+        String sellerAdvActual = "";
+        if (activeAdvDivs != null) {
+            String json = activeAdvDivs.select("[data-props]").attr("data-props");
+            Gson gson = new Gson();
+            Map<String, Object> asMap = gson.fromJson(json, Map.class);
+            if (asMap != null) {
+                sellerAdvActual = (String) asMap.getOrDefault("summary", "");
+            }
+            advertisement.setSellerAdvActual(sellerAdvActual);
         }
     }
 
     /**
-     * Посчитать приблизительное число страниц исходя из кол-ва объявлений,
-     * делённых на 56 (среднее число объявлений на странице авито (03.09.2020))
+     * Получить кол-во страниц
      *
-     * @param url ссылка на страницу с объявлениями по фильтру
-     * @return приблизительное кол-во страниц
+     * @param url ссылка на страницу
+     * @return кол-во страниц
      */
-    public int calculateTotalPages(String url) {
+    private int getTotalPages(String url) {
         int totalPages;
         try {
             Document document = getDocument(url);
@@ -316,6 +350,8 @@ public class AvitoParseService {
                     }
                 }
 
+            } else {
+                return 1;
             }
             return 0;
         } catch (Exception e) {
@@ -356,8 +392,8 @@ public class AvitoParseService {
      * Получить ссылку для обработки в зависимости от фильтров
      *
      * @param category категория объявления
-     * @param type вид объявления
-     * @param city город объявления
+     * @param type     вид объявления
+     * @param city     город объявления
      * @return ссылка
      */
     private String getUrl(AdvertisementCategory category, AdvertisementType type, City city) {
