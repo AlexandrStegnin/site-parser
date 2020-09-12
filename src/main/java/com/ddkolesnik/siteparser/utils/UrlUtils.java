@@ -26,7 +26,7 @@ public class UrlUtils {
     public static String getTradingAreaSaleUrl(City city) {
         String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ?pmin=17900000&" +
-                "proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1";
+                "proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1&s=104";
         return baseUrl + city.getTitle() + partUrl;
     }
 
@@ -40,7 +40,7 @@ public class UrlUtils {
         String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/sdam/" +
                 "magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" +
-                "&pmin=17900000&proprofile=1";
+                "&pmin=17900000&proprofile=1&s=104";
         return baseUrl + city.getTitle() + partUrl;
     }
 
@@ -54,7 +54,7 @@ public class UrlUtils {
         String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/prodam-ASgBAgICAUSwCNJW?cd=1" +
                 "&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" +
-                "&pmin=17900000&proprofile=1";
+                "&pmin=17900000&proprofile=1&s=104";
         return baseUrl + city.getTitle() + partUrl;
     }
 
@@ -68,7 +68,7 @@ public class UrlUtils {
         String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/" +
                 "sdam-ASgBAgICAUSwCNRW?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" +
-                "&pmin=17900000&proprofile=1";
+                "&pmin=17900000&proprofile=1&s=104";
         return baseUrl + city.getTitle() + partUrl;
     }
 
