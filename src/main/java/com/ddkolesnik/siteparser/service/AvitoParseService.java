@@ -97,9 +97,9 @@ public class AvitoParseService {
      * Получить информацию об объявлении со страницы
      *  @param url               ссылка на страницу с объявлением
      * @param advertisementType вид объявления
-     * @param advCreateDate дата создания объявления
+     * @param publishDate дата публикации объявления
      */
-    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate advCreateDate) {
+    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate) {
         String link = url;
         url = "https://www.avito.ru" + url;
         Advertisement advertisement;
@@ -117,6 +117,7 @@ public class AvitoParseService {
             advertisement.setStations(getStations(document));
             advertisement.setDescription(getDescription(document));
             advertisement.setDateCreate(getDateCreate(document));
+            advertisement.setPublishDate(publishDate);
             setSellerInfo(document, advertisement);
         } catch (HttpStatusException e) {
             waiting(e);
