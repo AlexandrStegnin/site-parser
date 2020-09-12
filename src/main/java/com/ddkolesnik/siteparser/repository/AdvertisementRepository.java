@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -19,5 +20,8 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
     @Modifying
     @Query("DELETE FROM Advertisement adv WHERE adv.creationTime < :currentDate")
     void deleteOld(@Param("currentDate") LocalDateTime currentDate);
+
+    @Query("SELECT MAX(adv.publishDate) FROM Advertisement adv")
+    LocalDate getMaxPublishDate();
 
 }
