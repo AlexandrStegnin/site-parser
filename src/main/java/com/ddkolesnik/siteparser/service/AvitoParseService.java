@@ -17,10 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -408,6 +409,24 @@ public class AvitoParseService {
             url = UrlUtils.getOtherCategoriesRentUrl(city);
         }
         return url;
+    }
+
+    /**
+     * Получить дату публикации объявления
+     *
+     * @param dateCreate дата в строковом формате
+     * @return дата публикации
+     */
+    private LocalDate extractDate(String dateCreate) {
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM hh:mm", Locale.forLanguageTag("RU"));
+        try {
+            Date parsedDate = format.parse(dateCreate);
+            LocalDate finalDate = parsedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            return LocalDate.of(2020, finalDate.getMonth(), finalDate.getDayOfMonth());
+        } catch (ParseException e) {
+            log.error("Произошла ошибка: {}", e.getLocalizedMessage());
+            return null;
+        }
     }
 
 }
