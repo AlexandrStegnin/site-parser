@@ -43,6 +43,18 @@ public class Advertisement extends AbstractEntity {
     @Column(name = "seller_name")
     private String sellerName;
 
+    @Column(name = "seller_type")
+    private String sellerType;
+
+    @Column(name = "seller_on_avito")
+    private String sellerOnAvito;
+
+    @Column(name = "seller_adv_complete")
+    private String sellerAdvComplete;
+
+    @Column(name = "seller_adv_actual")
+    private String sellerAdvActual;
+
     @Column(name = "adv_type")
     private String advType;
 
