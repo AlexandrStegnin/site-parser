@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * @author Alexandr Stegnin
@@ -61,4 +62,6 @@ public class Advertisement extends AbstractEntity {
     @Column(name = "city")
     private String city;
 
+    @Column(name = "publish_date")
+    private LocalDate publishDate;
 }
