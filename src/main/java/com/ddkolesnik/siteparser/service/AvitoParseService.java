@@ -89,7 +89,7 @@ public class AvitoParseService {
                 String href = el.select("a[href]").attr("href");
                 if (!href.trim().isEmpty()) {
                     LocalDate advCreateDate = extractDate(element);
-                    if (advCreateDate != null && advCreateDate.isBefore(maxPublishDate)) {
+                    if (maxPublishDate != null && advCreateDate != null && advCreateDate.isBefore(maxPublishDate)) {
                         return links;
                     }
                     links.put(href.trim(), advCreateDate);
