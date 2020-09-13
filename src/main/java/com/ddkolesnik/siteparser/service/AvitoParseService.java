@@ -64,6 +64,9 @@ public class AvitoParseService {
         while (pageNumber <= totalPages) {
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, totalPages);
             links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber)), maxPublishDate));
+            if (links.size() == 0) {
+                break;
+            }
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
