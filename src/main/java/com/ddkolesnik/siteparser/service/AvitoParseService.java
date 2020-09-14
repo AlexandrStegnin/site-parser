@@ -120,7 +120,10 @@ public class AvitoParseService {
         try {
             Thread.sleep(1_500);
             Document document = getDocument(url);
-
+            String title = getTitle(document);
+            if (title == null) {
+                return;
+            }
             advertisement = new Advertisement();
             advertisement.setAdvType(advertisementType.getTitle());
             advertisement.setTitle(getTitle(document));
