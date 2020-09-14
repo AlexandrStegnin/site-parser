@@ -114,8 +114,8 @@ public class AvitoParseService {
      * @param publishDate дата публикации объявления
      */
     public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate) {
-        String link = url;
         url = "https://www.avito.ru" + url;
+        String link = url;
         Advertisement advertisement;
         try {
             Thread.sleep(1_500);
