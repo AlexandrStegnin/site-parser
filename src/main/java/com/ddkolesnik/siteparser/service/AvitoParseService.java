@@ -479,7 +479,37 @@ public class AvitoParseService {
      * @return результат проверки
      */
     private boolean checkAddress(String address, City city) {
+        if (checkArea(address, city)) {
+            return checkCity(address, city);
+        }
+        return true;
+    }
+
+    /**
+     * Проверить область по шаблону
+     *
+     * @param address адрес
+     * @param city город
+     * @return результат
+     */
+    private boolean checkArea(String address, City city) {
         Pattern pattern = Pattern.compile(city.getPattern());
+        Matcher matcher = pattern.matcher(address.toLowerCase());
+        return matcher.find();
+    }
+
+    /**
+     * Проверить город по шаблону
+     *
+     * @param address адрес
+     * @param city город
+     * @return результат
+     */
+    private boolean checkCity(String address, City city) {
+        String cityName = city.getTitle();
+        String template = "(%s)";
+        String cityPattern = String.format(template, cityName);
+        Pattern pattern = Pattern.compile(cityPattern);
         Matcher matcher = pattern.matcher(address.toLowerCase());
         return matcher.find();
     }
