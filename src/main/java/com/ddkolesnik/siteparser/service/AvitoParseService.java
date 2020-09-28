@@ -24,6 +24,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Alexandr Stegnin
@@ -46,7 +48,7 @@ public class AvitoParseService {
      *
      * @param category          категория объявления
      * @param advertisementType вид объявления
-     * @param maxPublishDate дата последней публикации в базе данных
+     * @param maxPublishDate    дата последней публикации в базе данных
      * @return список объявлений
      */
     public int parse(AdvertisementCategory category, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
@@ -70,13 +72,13 @@ public class AvitoParseService {
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
-        return getAdvertisements(links, advertisementType);
+        return getAdvertisements(links, advertisementType, city);
     }
 
     /**
      * Собрать ссылки на объявления со страницы
      *
-     * @param url ссылка на страницу
+     * @param url            ссылка на страницу
      * @param maxPublishDate дата последней публикации в базе данных
      * @return список ссылок на объявления
      */
@@ -109,17 +111,23 @@ public class AvitoParseService {
 
     /**
      * Получить информацию об объявлении со страницы
-     *  @param url               ссылка на страницу с объявлением
+     *
+     * @param url               ссылка на страницу с объявлением
      * @param advertisementType вид объявления
-     * @param publishDate дата публикации объявления
+     * @param publishDate       дата публикации объявления
+     * @param city              город
      */
-    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate) {
+    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate, City city) {
         url = "https://www.avito.ru" + url;
         String link = url;
         Advertisement advertisement;
         try {
             Thread.sleep(1_500);
             Document document = getDocument(url);
+            String address = getAddress(document);
+            if (!checkAddress(address, city)) {
+                return;
+            }
             String title = getTitle(document);
             if (title == null) {
                 return;
@@ -130,7 +138,7 @@ public class AvitoParseService {
             advertisement.setLink(link);
             advertisement.setArea(getArea(document));
             advertisement.setPrice(getPrice(document));
-            advertisement.setAddress(getAddress(document));
+            advertisement.setAddress(address);
             advertisement.setStations(getStations(document));
             advertisement.setDescription(getDescription(document));
             advertisement.setDateCreate(getDateCreate(document));
@@ -146,6 +154,11 @@ public class AvitoParseService {
         advertisementService.create(advertisement);
     }
 
+    /**
+     * Метод для ожидания, в случае, если сервер сказал, что мы "спамим"
+     *
+     * @param e ошибка
+     */
     private void waiting(HttpStatusException e) {
         if (e.getStatusCode() == 429) {
             log.error("Слишком много запросов {}", e.getLocalizedMessage());
@@ -153,7 +166,7 @@ public class AvitoParseService {
             try {
                 Thread.sleep(30 * 1000 * 60);
             } catch (InterruptedException exception) {
-                log.error(String.format("Произошла ошибка: [%s]", e));
+                log.error(String.format("Произошла ошибка: [%s]", exception));
             }
         }
     }
@@ -163,8 +176,9 @@ public class AvitoParseService {
      *
      * @param urls              ссылки на объявления
      * @param advertisementType вид объявления
+     * @param city город
      */
-    public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType) {
+    public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType, City city) {
         int linksCount = urls.size();
         AtomicInteger counter = new AtomicInteger();
         urls.forEach((url, date) -> {
@@ -177,7 +191,7 @@ public class AvitoParseService {
                 }
             }
             log.info("Собираем {} из {} объявлений", counter.get() + 1, linksCount);
-            parseAdvertisement(url, advertisementType, date);
+            parseAdvertisement(url, advertisementType, date, city);
             counter.getAndIncrement();
         });
         return linksCount;
@@ -455,6 +469,19 @@ public class AvitoParseService {
             log.error("Произошла ошибка: {}", e.getLocalizedMessage());
             return null;
         }
+    }
+
+    /**
+     * Проверить адрес, должен содержать в себе Московская область, г Москва/Свердловская обл, г Екатеринбург/Тюменская обл, г Тюмень
+     *
+     * @param address адресс для проверки
+     * @param city    город для получения регулярного выражения
+     * @return результат проверки
+     */
+    private boolean checkAddress(String address, City city) {
+        Pattern pattern = Pattern.compile(city.getPattern());
+        Matcher matcher = pattern.matcher(address.toLowerCase());
+        return matcher.find();
     }
 
 }
