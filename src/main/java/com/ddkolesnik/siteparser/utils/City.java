@@ -6,9 +6,9 @@ package com.ddkolesnik.siteparser.utils;
 
 public enum City {
 
-    MOSCOW(1, "moskva", "Москва"),
-    TYUMEN(2, "tyumen", "Тюмень"),
-    EKB(3, "ekaterinburg", "Екатеринбург");
+    MOSCOW(1, "moskva", "Москва", "(московская).+(москва)"),
+    TYUMEN(2, "tyumen", "Тюмень", "(тюменская).+(тюмень)"),
+    EKB(3, "ekaterinburg", "Екатеринбург", "(свердловская).+(екатеринбург)");
 
     private final int id;
 
@@ -16,10 +16,13 @@ public enum City {
 
     private final String description;
 
-    City(int id, String title, String description) {
+    private final String pattern;
+
+    City(int id, String title, String description, String pattern) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.pattern = pattern;
     }
 
     public int getId() {
@@ -34,4 +37,7 @@ public enum City {
         return description;
     }
 
+    public String getPattern() {
+        return pattern;
+    }
 }
