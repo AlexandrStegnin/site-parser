@@ -479,6 +479,9 @@ public class AvitoParseService {
      * @return результат проверки
      */
     private boolean checkAddress(String address, City city) {
+        if (address == null) {
+            return true;
+        }
         if (checkArea(address, city)) {
             return checkCity(address, city);
         }
