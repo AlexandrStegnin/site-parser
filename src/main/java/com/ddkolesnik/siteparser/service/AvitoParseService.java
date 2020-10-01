@@ -183,7 +183,7 @@ public class AvitoParseService {
         AtomicInteger counter = new AtomicInteger(0);
         urls.forEach((url, date) -> {
             int cnt = counter.get();
-            if (cnt != 0 && (cnt % 500 == 0)) {
+            if (cnt != 0 && (cnt % 10 == 0)) {
                 try {
                     log.info("Засыпаем на 1 минуту, чтобы обойти блокировку");
                     Thread.sleep(60 * 1_000);
