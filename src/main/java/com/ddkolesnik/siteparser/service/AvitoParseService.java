@@ -122,7 +122,7 @@ public class AvitoParseService {
         String link = url;
         Advertisement advertisement;
         try {
-            Thread.sleep(1_500);
+            Thread.sleep(2_000);
             Document document = getDocument(url);
             String address = getAddress(document);
             if (!checkAddress(address, city)) {
