@@ -58,8 +58,8 @@ public class UrlUtils {
         String salePrice = city.getSalePrice();
         String salePricePart = "&pmin=".concat(salePrice);
         String baseUrl = "https://www.avito.ru/";
-        String partUrl = "/kommercheskaya_nedvizhimost/prodam-ASgBAgICAUSwCNJW?cd=1" +
-                "&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + salePricePart +
+        String partUrl = "/kommercheskaya_nedvizhimost/prodam-ASgBAgICAUSwCNJW?" +
+                "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + salePricePart +
                 "&proprofile=1&s=104";
         return baseUrl + city.getTitle() + partUrl;
     }
@@ -75,7 +75,7 @@ public class UrlUtils {
         String rentPricePart = "&pmin=".concat(rentPrice);
         String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/" +
-                "sdam-ASgBAgICAUSwCNRW?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + rentPricePart +
+                "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + rentPricePart +
                 "&proprofile=1&s=104";
         return baseUrl + city.getTitle() + partUrl;
     }
