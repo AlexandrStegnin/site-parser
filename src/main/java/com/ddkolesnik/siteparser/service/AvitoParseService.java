@@ -180,9 +180,10 @@ public class AvitoParseService {
      */
     public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType, City city) {
         int linksCount = urls.size();
-        AtomicInteger counter = new AtomicInteger();
+        AtomicInteger counter = new AtomicInteger(0);
         urls.forEach((url, date) -> {
-            if ((counter.get() % 500) == 0) {
+            int cnt = counter.get();
+            if (cnt != 0 && (cnt % 500 == 0)) {
                 try {
                     log.info("Засыпаем на 1 минуту, чтобы обойти блокировку");
                     Thread.sleep(60 * 1_000);
