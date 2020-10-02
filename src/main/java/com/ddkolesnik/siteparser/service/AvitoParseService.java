@@ -193,8 +193,8 @@ public class AvitoParseService {
             int cnt = counter.get();
             if (cnt != 0 && (cnt % 8 == 0)) {
                 try {
-                    log.info("Засыпаем на 30 секунд, чтобы обойти блокировку");
-                    Thread.sleep(30 * 1_000);
+                    log.info("Засыпаем на 10 секунд, чтобы обойти блокировку");
+                    Thread.sleep(10 * 1_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
