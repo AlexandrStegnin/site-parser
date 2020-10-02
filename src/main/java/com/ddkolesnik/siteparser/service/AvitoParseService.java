@@ -162,9 +162,9 @@ public class AvitoParseService {
     private void waiting(HttpStatusException e) {
         if (e.getStatusCode() == 429) {
             log.error("Слишком много запросов {}", e.getLocalizedMessage());
-            log.info("Засыпаем на 30 мин для обхода блокировки");
+            log.info("Засыпаем на 60 мин для обхода блокировки");
             try {
-                Thread.sleep(30 * 1000 * 60);
+                Thread.sleep(60 * 1000 * 60);
             } catch (InterruptedException exception) {
                 log.error(String.format("Произошла ошибка: [%s]", exception));
             }
@@ -183,10 +183,10 @@ public class AvitoParseService {
         AtomicInteger counter = new AtomicInteger(0);
         urls.forEach((url, date) -> {
             int cnt = counter.get();
-            if (cnt != 0 && (cnt % 10 == 0)) {
+            if (cnt != 0 && (cnt % 8 == 0)) {
                 try {
-                    log.info("Засыпаем на 1 минуту, чтобы обойти блокировку");
-                    Thread.sleep(60 * 1_000);
+                    log.info("Засыпаем на 30 секунд, чтобы обойти блокировку");
+                    Thread.sleep(30 * 1_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
