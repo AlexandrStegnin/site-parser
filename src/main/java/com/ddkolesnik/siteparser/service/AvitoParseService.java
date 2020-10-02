@@ -66,17 +66,15 @@ public class AvitoParseService {
         while (pageNumber <= totalPages) {
             if (pageNumber % 10 == 0) {
                 try {
-                    log.info("Засыпаем на 30 секунд, чтобы обойти блокировку");
-                    Thread.sleep(30 * 1_000);
+                    log.info("Засыпаем на 10 секунд, чтобы обойти блокировку");
+                    log.info("На данный момент собрано ссылок [{} шт]", links.size());
+                    Thread.sleep(10 * 1_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
             }
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, totalPages);
             links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber)), maxPublishDate));
-            if (links.size() == 0) {
-                break;
-            }
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
