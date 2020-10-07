@@ -66,9 +66,9 @@ public class AvitoParseService {
         while (pageNumber <= totalPages) {
             if (pageNumber % 10 == 0) {
                 try {
-                    log.info("Засыпаем на 10 секунд, чтобы обойти блокировку");
+                    log.info("Засыпаем на 20 секунд, чтобы обойти блокировку");
                     log.info("На данный момент собрано ссылок [{} шт]", links.size());
-                    Thread.sleep(10 * 1_000);
+                    Thread.sleep(20 * 1_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
@@ -92,7 +92,7 @@ public class AvitoParseService {
         Map<String, LocalDate> links = new HashMap<>();
         Document document;
         try {
-            Thread.sleep(1_500);
+            Thread.sleep(2_000);
             document = getDocument(url);
             Elements aSnippetLinks = document.select("a.snippet-link");
             for (Element element : aSnippetLinks) {
@@ -191,8 +191,8 @@ public class AvitoParseService {
             int cnt = counter.get();
             if (cnt != 0 && (cnt % 8 == 0)) {
                 try {
-                    log.info("Засыпаем на 10 секунд, чтобы обойти блокировку");
-                    Thread.sleep(10 * 1_000);
+                    log.info("Засыпаем на 20 секунд, чтобы обойти блокировку");
+                    Thread.sleep(20 * 1_000);
                 } catch (InterruptedException e) {
                     log.error("Произошла ошибка: {}", e.getLocalizedMessage());
                 }
