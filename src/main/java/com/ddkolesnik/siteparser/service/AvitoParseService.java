@@ -64,15 +64,6 @@ public class AvitoParseService {
         }
         int pageNumber = 1;
         while (pageNumber <= totalPages) {
-            if (pageNumber % 10 == 0) {
-                try {
-                    log.info("Засыпаем на 20 секунд, чтобы обойти блокировку");
-                    log.info("На данный момент собрано ссылок [{} шт]", links.size());
-                    Thread.sleep(20 * 1_000);
-                } catch (InterruptedException e) {
-                    log.error("Произошла ошибка: {}", e.getLocalizedMessage());
-                }
-            }
             log.info("Собираем ссылки со страницы {} из {}", pageNumber, totalPages);
             links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber)), maxPublishDate));
             pageNumber++;
@@ -92,7 +83,6 @@ public class AvitoParseService {
         Map<String, LocalDate> links = new HashMap<>();
         Document document;
         try {
-            Thread.sleep(2_000);
             document = getDocument(url);
             Elements aSnippetLinks = document.select("a.snippet-link");
             for (Element element : aSnippetLinks) {
@@ -108,7 +98,7 @@ public class AvitoParseService {
             }
         } catch (HttpStatusException e) {
             waiting(e);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return links;
         }
@@ -128,7 +118,6 @@ public class AvitoParseService {
         String link = url;
         Advertisement advertisement;
         try {
-            Thread.sleep(2_000);
             Document document = getDocument(url);
             String address = getAddress(document);
             if (!checkAddress(address, city)) {
@@ -153,7 +142,7 @@ public class AvitoParseService {
         } catch (HttpStatusException e) {
             waiting(e);
             return;
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             log.error(String.format("Произошла ошибка: [%s]", e));
             return;
         }
@@ -188,15 +177,6 @@ public class AvitoParseService {
         int linksCount = urls.size();
         AtomicInteger counter = new AtomicInteger(0);
         urls.forEach((url, date) -> {
-            int cnt = counter.get();
-            if (cnt != 0 && (cnt % 8 == 0)) {
-                try {
-                    log.info("Засыпаем на 20 секунд, чтобы обойти блокировку");
-                    Thread.sleep(20 * 1_000);
-                } catch (InterruptedException e) {
-                    log.error("Произошла ошибка: {}", e.getLocalizedMessage());
-                }
-            }
             log.info("Собираем {} из {} объявлений", counter.get() + 1, linksCount);
             parseAdvertisement(url, advertisementType, date, city);
             counter.getAndIncrement();
@@ -410,6 +390,11 @@ public class AvitoParseService {
      * @throws IOException любая ошибка, связанная с открытием адреса страницы
      */
     private Document getDocument(String url) throws IOException {
+        try {
+            Thread.sleep(6_000);
+        } catch (InterruptedException e) {
+            log.error("Произошла ошибка: " + e.getLocalizedMessage());
+        }
         int number = ThreadLocalRandom.current().nextInt(0, 1);
         Connection.Response response = Jsoup.connect(url)
                 .userAgent(switchUserAgent(number))
