@@ -186,6 +186,7 @@ public class Parser {
         List<Advertisement> advertisements = new ArrayList<>();
         Document document = getDocument(url);
         Elements adsArray = document.select("div.description.item_table-description");
+        String cityName = city.getDescription();
         for (Element ad : adsArray) {
             String title = getTitle(ad);
             String area = extractArea(title);
@@ -201,7 +202,7 @@ public class Parser {
             advertisement.setDateCreate(getDateCreate(ad));
             advertisement.setDescription(getDescription(ad));
             advertisement.setAdvType(type.getTitle());
-            advertisement.setCity(city.getDescription());
+            advertisement.setCity(cityName);
             advertisementService.create(advertisement);
             advertisements.add(advertisement);
         }
