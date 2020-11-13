@@ -390,8 +390,10 @@ public class AvitoParseService {
      * @throws IOException любая ошибка, связанная с открытием адреса страницы
      */
     private Document getDocument(String url) throws IOException {
+        long timer = 6_000;
         try {
-            Thread.sleep(6_000);
+            log.info(String.format("Засыпаем на %d секунд", (timer / 1000)));
+            Thread.sleep(timer);
         } catch (InterruptedException e) {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
         }
