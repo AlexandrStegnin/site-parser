@@ -7,7 +7,7 @@ package com.ddkolesnik.siteparser.utils;
 public enum City {
 
     MOSCOW(1, "moskva", "Москва", "(московская\\s+обл)", "20000000", "400000"),
-    TYUMEN(2, "tyumen", "Тюмень", "(тюменская\\s+обл)", "10000000000", "10000000000"),
+    TYUMEN(2, "tyumen", "Тюмень", "(тюменская\\s+обл)", "0", "0"),
     EKB(3, "ekaterinburg", "Екатеринбург", "(свердловская\\s+обл)", "5000000", "50000");
 
     private final int id;
