@@ -14,6 +14,8 @@ import java.security.cert.X509Certificate;
 
 public class UrlUtils {
 
+    private static final String BASE_URL = "https://avito.ru/";
+
     private UrlUtils() {
     }
 
@@ -26,10 +28,9 @@ public class UrlUtils {
     public static String getTradingAreaSaleUrl(City city) {
         String salePrice = city.getSalePrice();
         String salePricePart = "?pmin=".concat(salePrice);
-        String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ" + salePricePart +
                 "&proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1&s=104";
-        return baseUrl + city.getTitle() + partUrl;
+        return BASE_URL + city.getTitle() + partUrl;
     }
 
     /**
@@ -41,11 +42,10 @@ public class UrlUtils {
     public static String getTradingAreaRentUrl(City city) {
         String rentPrice = city.getRentPrice();
         String rentPricePart = "&pmin=".concat(rentPrice);
-        String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/sdam/" +
                 "magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" + rentPricePart +
                 "&proprofile=1&s=104";
-        return baseUrl + city.getTitle() + partUrl;
+        return BASE_URL + city.getTitle() + partUrl;
     }
 
     /**
@@ -57,11 +57,10 @@ public class UrlUtils {
     public static String getOtherCategoriesSaleUrl(City city) {
         String salePrice = city.getSalePrice();
         String salePricePart = "&pmin=".concat(salePrice);
-        String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/prodam-ASgBAgICAUSwCNJW?" +
                 "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + salePricePart +
                 "&proprofile=1&s=104";
-        return baseUrl + city.getTitle() + partUrl;
+        return BASE_URL + city.getTitle() + partUrl;
     }
 
     /**
@@ -73,12 +72,16 @@ public class UrlUtils {
     public static String getOtherCategoriesRentUrl(City city) {
         String rentPrice = city.getSalePrice();
         String rentPricePart = "&pmin=".concat(rentPrice);
-        String baseUrl = "https://www.avito.ru/";
         String partUrl = "/kommercheskaya_nedvizhimost/" +
                 "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + rentPricePart +
                 "&proprofile=1&s=104";
-        return baseUrl + city.getTitle() + partUrl;
+        return BASE_URL + city.getTitle() + partUrl;
     }
+
+    public static String getHouseCountryHouseCottageUrl(City city) {
+        return BASE_URL;
+    }
+
 
     /**
      * Подключение SSL
