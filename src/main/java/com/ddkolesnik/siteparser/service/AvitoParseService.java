@@ -44,8 +44,8 @@ public class AvitoParseService {
      * Собрать и записать информацию по объявлениям
      *
      * @param category          категория объявления
-     * @param subCategory подкатегория
-     * @param city город
+     * @param subCategory       подкатегория
+     * @param city              город
      * @param advertisementType вид объявления
      * @param maxPublishDate    дата последней публикации в базе данных
      * @return список объявлений
@@ -68,7 +68,7 @@ public class AvitoParseService {
             pageNumber++;
         }
         log.info("Итого собрано ссылок [{} шт]", links.size());
-        return getAdvertisements(links, advertisementType, city);
+        return getAdvertisements(links, advertisementType, city, category);
     }
 
     /**
@@ -111,8 +111,9 @@ public class AvitoParseService {
      * @param advertisementType вид объявления
      * @param publishDate       дата публикации объявления
      * @param city              город
+     * @param category          категория объявления
      */
-    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate, City city) {
+    public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate, City city, AdvCategory category) {
         url = "https://www.avito.ru" + url;
         String link = url;
         Advertisement advertisement;
@@ -138,6 +139,7 @@ public class AvitoParseService {
             advertisement.setDateCreate(getDateCreate(document));
             advertisement.setPublishDate(publishDate);
             advertisement.setCity(city.getDescription());
+            advertisement.setCategory(category.getTitle());
             setSellerInfo(document, advertisement);
         } catch (HttpStatusException e) {
             waiting(e);
@@ -171,14 +173,15 @@ public class AvitoParseService {
      *
      * @param urls              ссылки на объявления
      * @param advertisementType вид объявления
-     * @param city город
+     * @param city              город
+     * @param category
      */
-    public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType, City city) {
+    public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType, City city, AdvCategory category) {
         int linksCount = urls.size();
         AtomicInteger counter = new AtomicInteger(0);
         urls.forEach((url, date) -> {
             log.info("Собираем {} из {} объявлений", counter.get() + 1, linksCount);
-            parseAdvertisement(url, advertisementType, date, city);
+            parseAdvertisement(url, advertisementType, date, city, category);
             counter.getAndIncrement();
         });
         return linksCount;
@@ -420,21 +423,21 @@ public class AvitoParseService {
     /**
      * Получить ссылку для обработки в зависимости от фильтров
      *
-     * @param category категория объявления
+     * @param category    категория объявления
      * @param subCategory подкатегория объявления
-     * @param type     вид объявления
-     * @param city     город объявления
+     * @param type        вид объявления
+     * @param city        город объявления
      * @return ссылка
      */
     private String getUrl(AdvCategory category, SubCategory subCategory, AdvertisementType type, City city) {
         String url = "";
-        if (subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
+        if (category == AdvCategory.COMMERCIAL_PROPERTY && subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
             return UrlUtils.getTradingAreaSaleUrl(city);
-        } else if (subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
+        } else if (category == AdvCategory.COMMERCIAL_PROPERTY && subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
             return UrlUtils.getTradingAreaRentUrl(city);
-        } else if (subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
+        } else if (category == AdvCategory.COMMERCIAL_PROPERTY && subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
             return UrlUtils.getOtherCategoriesSaleUrl(city);
-        } else if (subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
+        } else if (category == AdvCategory.COMMERCIAL_PROPERTY && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
             return UrlUtils.getOtherCategoriesRentUrl(city);
         }
         if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && type == AdvertisementType.SALE) {
@@ -492,7 +495,7 @@ public class AvitoParseService {
      * Проверить область по шаблону
      *
      * @param address адрес
-     * @param city город
+     * @param city    город
      * @return результат
      */
     private boolean checkArea(String address, City city) {
@@ -505,7 +508,7 @@ public class AvitoParseService {
      * Проверить город по шаблону
      *
      * @param address адрес
-     * @param city город
+     * @param city    город
      * @return результат
      */
     private boolean checkCity(String address, City city) {
