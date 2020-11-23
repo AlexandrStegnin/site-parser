@@ -67,9 +67,11 @@ public class ScheduledTask {
         count += avitoParseService.parse(AdvCategory.COMMERCIAL_PROPERTY, SubCategory.OTHER, AdvertisementType.SALE, City.EKB, maxPublishDate);
         count += avitoParseService.parse(AdvCategory.COMMERCIAL_PROPERTY, SubCategory.OTHER, AdvertisementType.RENT, City.EKB, maxPublishDate);
         count += avitoParseService.parse(AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE, SubCategory.OTHER, AdvertisementType.SALE, City.MOSCOW, maxPublishDate);
+        count += avitoParseService.parse(AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE, SubCategory.OTHER, AdvertisementType.RENT, City.MOSCOW, maxPublishDate);
         count += avitoParseService.parse(AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE, SubCategory.OTHER, AdvertisementType.SALE, City.TYUMEN, maxPublishDate);
+        count += avitoParseService.parse(AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE, SubCategory.OTHER, AdvertisementType.RENT, City.TYUMEN, maxPublishDate);
         count += avitoParseService.parse(AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE, SubCategory.OTHER, AdvertisementType.SALE, City.EKB, maxPublishDate);
-
+        count += avitoParseService.parse(AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE, SubCategory.OTHER, AdvertisementType.RENT, City.EKB, maxPublishDate);
         return count;
     }
 
