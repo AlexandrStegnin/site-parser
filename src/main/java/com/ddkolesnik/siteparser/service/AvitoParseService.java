@@ -121,7 +121,7 @@ public class AvitoParseService {
         try {
             Document document = getDocument(url);
             String address = getAddress(document);
-            if (category != AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE) {
+            if (category == AdvCategory.COMMERCIAL_PROPERTY) {
                 if (!checkAddress(address, city)) {
                     return;
                 }
