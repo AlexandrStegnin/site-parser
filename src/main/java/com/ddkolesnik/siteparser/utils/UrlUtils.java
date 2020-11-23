@@ -31,7 +31,7 @@ public class UrlUtils {
         String price = PRICE_PART.concat(city.getSalePrice());
         String part = "prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ" +
                 "&proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1" + price;
-        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
     /**
@@ -44,7 +44,7 @@ public class UrlUtils {
         String price = PRICE_PART.concat(city.getRentPrice());
         String part = "sdam/magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" +
                 price + "&proprofile=1";
-        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
     /**
@@ -58,7 +58,7 @@ public class UrlUtils {
         String part = "prodam-ASgBAgICAUSwCNJW?" +
                 "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + price +
                 "&proprofile=1&";
-        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
     /**
@@ -71,10 +71,10 @@ public class UrlUtils {
         String price = PRICE_PART.concat(city.getSalePrice());
         String part = "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + price +
                 "&proprofile=1";
-        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
-    public static String getHouseCountryHouseCottageUrl(City city) {
+    public static String getHouseCountryHouseCottageRentUrl(City city) {
         return "";
     }
 

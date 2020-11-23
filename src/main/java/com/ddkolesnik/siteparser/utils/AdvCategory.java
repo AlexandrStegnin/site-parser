@@ -11,18 +11,18 @@ public enum  AdvCategory {
 
     private final String title;
 
-    private final String url;
+    private final String category;
 
-    AdvCategory(String title, String url) {
+    AdvCategory(String title, String category) {
         this.title = title;
-        this.url = url;
+        this.category = category;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getUrl() {
-        return url;
+    public String getCategory() {
+        return category;
     }
 }
