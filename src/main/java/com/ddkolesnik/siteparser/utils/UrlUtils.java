@@ -74,8 +74,15 @@ public class UrlUtils {
         return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
-    public static String getHouseCountryHouseCottageRentUrl(City city) {
-        return "";
+    /**
+     * Ссылка на покупку в категории дома, дачи, коттеджи
+     *
+     * @param city город
+     * @return ссылка
+     */
+    public static String getHouseCountryHouseCottageSaleUrl(City city) {
+        String part = "prodam-ASgBAgICAUSUA9AQ?cd=1&i=1";
+        return generateUrl(city.getTitle(), AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE.getCategory(), part);
     }
 
     /**
@@ -83,8 +90,8 @@ public class UrlUtils {
      *
      * @param city название города
      * @param category категория
-     * @param part
-     * @return
+     * @param part часть ссылки
+     * @return ссылка
      */
     private static String generateUrl(String city, String category, String part) {
         return String.format(TEMPLATE, city, category, part);
