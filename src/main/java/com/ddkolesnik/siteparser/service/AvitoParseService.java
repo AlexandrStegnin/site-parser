@@ -214,7 +214,9 @@ public class AvitoParseService {
         Elements areaEl = document.select("div.item-params");
         if (areaEl != null) {
             Elements areas = areaEl.select("span");
-            if (areas != null && areas.size() > 0) {
+            if (areas.size() == 6) {
+                area = areaEl.select("li").text().split(":")[1].replaceAll("[^\\d.]", "");
+            } else {
                 Element areaFirstEl = areaEl.select("span").first();
                 if (areaFirstEl != null) {
                     String[] areaParts = areaFirstEl.text().split(":");
