@@ -86,6 +86,17 @@ public class UrlUtils {
     }
 
     /**
+     * Ссылка на аренду в категории дома, дачи, коттеджи
+     *
+     * @param city город
+     * @return ссылка
+     */
+    public static String getHouseCountryHouseCottageRentUrl(City city) {
+        String part = "sdam-ASgBAgICAUSUA9IQ?cd=1&i=1";
+        return generateUrl(city.getTitle(), AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE.getCategory(), part);
+    }
+
+    /**
      * Сгенерировать ссылку по шаблону
      *
      * @param city название города
