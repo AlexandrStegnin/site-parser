@@ -64,4 +64,7 @@ public class Advertisement extends AbstractEntity {
 
     @Column(name = "publish_date")
     private LocalDate publishDate;
+
+    @Column(name = "category")
+    private String category;
 }
