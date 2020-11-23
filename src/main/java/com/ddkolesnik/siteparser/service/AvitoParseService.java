@@ -2,9 +2,10 @@ package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.utils.*;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,12 +32,13 @@ import java.util.regex.Pattern;
 @Service
 public class AvitoParseService {
 
-    private final Map<String, String> cookieMap = new HashMap<>();
-
     private final AdvertisementService advertisementService;
 
-    public AvitoParseService(AdvertisementService advertisementService) {
+    private final WebClient webClient;
+
+    public AvitoParseService(AdvertisementService advertisementService, WebClient webClient) {
         this.advertisementService = advertisementService;
+        this.webClient = webClient;
     }
 
     /**
@@ -114,7 +115,7 @@ public class AvitoParseService {
      * @param category          категория объявления
      */
     public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate, City city, AdvCategory category) {
-        url = "https://www.avito.ru" + url;
+        url = "https://avito.ru" + url;
         String link = url;
         Advertisement advertisement;
         try {
@@ -174,7 +175,7 @@ public class AvitoParseService {
      * @param urls              ссылки на объявления
      * @param advertisementType вид объявления
      * @param city              город
-     * @param category
+     * @param category          категория объявления
      */
     public int getAdvertisements(Map<String, LocalDate> urls, AdvertisementType advertisementType, City city, AdvCategory category) {
         int linksCount = urls.size();
@@ -398,32 +399,15 @@ public class AvitoParseService {
      * @return объект страницы HTML
      * @throws IOException любая ошибка, связанная с открытием адреса страницы
      */
-    private Document getDocument(String url) throws IOException {
+    public Document getDocument(String url) throws IOException {
         long timer = 6_000;
         try {
-            log.info(String.format("Засыпаем на %d секунд", (timer / 1000)));
             Thread.sleep(timer);
         } catch (InterruptedException e) {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
         }
-        int number = ThreadLocalRandom.current().nextInt(0, 1);
-        Connection.Response response = Jsoup.connect(url)
-                .userAgent(switchUserAgent(number))
-                .referrer(url)
-                .cookies(cookieMap)
-                .method(Connection.Method.GET)
-                .execute();
-
-        cookieMap.clear();
-        cookieMap.putAll(response.cookies());
-
-        return response.parse();
-    }
-
-    private String switchUserAgent(int number) {
-        String[] agents = {"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Safari/605.1.15",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36"};
-        return agents[number];
+        HtmlPage page = webClient.getPage(url);
+        return Jsoup.parse(page.asXml());
     }
 
     /**
