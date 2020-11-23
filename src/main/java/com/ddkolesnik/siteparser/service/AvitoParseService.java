@@ -4,6 +4,7 @@ import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.utils.*;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptJobManager;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.HttpStatusException;
@@ -13,7 +14,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -82,8 +82,8 @@ public class AvitoParseService {
     public Map<String, LocalDate> getLinks(String url, LocalDate maxPublishDate) {
         Map<String, LocalDate> links = new HashMap<>();
         Document document;
-        try {
-            document = getDocument(url);
+        document = getDocument(url);
+        if (document != null) {
             Elements aSnippetLinks = document.select("a.snippet-link");
             for (Element element : aSnippetLinks) {
                 Elements el = element.getElementsByAttributeValue("itemprop", "url");
@@ -96,11 +96,6 @@ public class AvitoParseService {
                     links.put(href.trim(), advCreateDate);
                 }
             }
-        } catch (HttpStatusException e) {
-            waiting(e);
-        } catch (IOException e) {
-            log.error(String.format("Произошла ошибка: [%s]", e));
-            return links;
         }
         return links;
     }
@@ -118,39 +113,34 @@ public class AvitoParseService {
         url = "https://avito.ru" + url;
         String link = url;
         Advertisement advertisement;
-        try {
-            Document document = getDocument(url);
-            String address = getAddress(document);
-            if (category == AdvCategory.COMMERCIAL_PROPERTY) {
-                if (!checkAddress(address, city)) {
-                    return;
-                }
-            }
-            String title = getTitle(document);
-            if (title == null) {
-                return;
-            }
-            advertisement = new Advertisement();
-            advertisement.setAdvType(advertisementType.getTitle());
-            advertisement.setTitle(getTitle(document));
-            advertisement.setLink(link);
-            advertisement.setArea(getArea(document));
-            advertisement.setPrice(getPrice(document));
-            advertisement.setAddress(address);
-            advertisement.setStations(getStations(document));
-            advertisement.setDescription(getDescription(document));
-            advertisement.setDateCreate(getDateCreate(document));
-            advertisement.setPublishDate(publishDate);
-            advertisement.setCity(city.getDescription());
-            advertisement.setCategory(category.getTitle());
-            setSellerInfo(document, advertisement);
-        } catch (HttpStatusException e) {
-            waiting(e);
-            return;
-        } catch (IOException e) {
-            log.error(String.format("Произошла ошибка: [%s]", e));
+        Document document = getDocument(url);
+        if (document == null) {
             return;
         }
+        String address = getAddress(document);
+        if (category == AdvCategory.COMMERCIAL_PROPERTY) {
+            if (!checkAddress(address, city)) {
+                return;
+            }
+        }
+        String title = getTitle(document);
+        if (title == null) {
+            return;
+        }
+        advertisement = new Advertisement();
+        advertisement.setAdvType(advertisementType.getTitle());
+        advertisement.setTitle(getTitle(document));
+        advertisement.setLink(link);
+        advertisement.setArea(getArea(document));
+        advertisement.setPrice(getPrice(document));
+        advertisement.setAddress(address);
+        advertisement.setStations(getStations(document));
+        advertisement.setDescription(getDescription(document));
+        advertisement.setDateCreate(getDateCreate(document));
+        advertisement.setPublishDate(publishDate);
+        advertisement.setCity(city.getDescription());
+        advertisement.setCategory(category.getTitle());
+        setSellerInfo(document, advertisement);
         advertisementService.create(advertisement);
     }
 
@@ -370,6 +360,9 @@ public class AvitoParseService {
         int totalPages;
         try {
             Document document = getDocument(url);
+            if (document == null) {
+                return 0;
+            }
             Element pageCountDiv = document.getElementsByClass("pagination-pages").first();
             if (pageCountDiv != null) {
                 Element pageCountHref = pageCountDiv.getElementsByClass("pagination-pages").last();
@@ -401,17 +394,34 @@ public class AvitoParseService {
      *
      * @param url адрес страницы
      * @return объект страницы HTML
-     * @throws IOException любая ошибка, связанная с открытием адреса страницы
      */
-    public Document getDocument(String url) throws IOException {
+    public Document getDocument(String url) {
         long timer = 6_000;
         try {
             Thread.sleep(timer);
         } catch (InterruptedException e) {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
         }
-        HtmlPage page = webClient.getPage(url);
-        return Jsoup.parse(page.asXml());
+        HtmlPage page = null;
+        try {
+            page = webClient.getPage(url);
+        }  catch (HttpStatusException e) {
+            waiting(e);
+        } catch (Exception e) {
+            log.error("Произошла ошибка: " + e.getLocalizedMessage());
+        }
+        if (page != null) {
+            JavaScriptJobManager manager = page.getEnclosingWindow().getJobManager();
+            while (manager.getJobCount() > 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.error("Произошла ошибка: " + e.getLocalizedMessage());
+                }
+            }
+            return Jsoup.parse(page.asXml());
+        }
+        return null;
     }
 
     /**
