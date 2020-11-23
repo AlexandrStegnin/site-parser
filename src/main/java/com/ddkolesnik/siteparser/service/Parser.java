@@ -1,7 +1,7 @@
 package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.model.Advertisement;
-import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
+import com.ddkolesnik.siteparser.utils.SubCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.City;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
@@ -72,7 +72,7 @@ public class Parser {
         try {
             for (City city : City.values()) {
                 log.info("Собираем объявления об АРЕНДЕ торговых площадей по городу {}", city.getDescription());
-                totalCount = totalCount + parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.RENT, city);
+                totalCount = totalCount + parse(SubCategory.TRADING_AREA, AdvertisementType.RENT, city);
                 Thread.sleep(5_000);
             }
             log.info("Собрано объявлений [{} шт]", totalCount);
@@ -93,7 +93,7 @@ public class Parser {
         try {
             for (City city : City.values()) {
                 log.info("Собираем объявления о ПРОДАЖЕ торговых площадей по городу {}", city.getDescription());
-                totalCount = totalCount + parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, city);
+                totalCount = totalCount + parse(SubCategory.TRADING_AREA, AdvertisementType.SALE, city);
                 Thread.sleep(5_000);
             }
             log.info("Собрано объявлений [{} шт]", totalCount);
@@ -114,7 +114,7 @@ public class Parser {
         try {
             for (City city : City.values()) {
                 log.info("Собираем объявления об АРЕНДЕ в остальных категоряих по городу {}", city.getDescription());
-                totalCount = totalCount + parse(AdvertisementCategory.OTHER, AdvertisementType.RENT, city);
+                totalCount = totalCount + parse(SubCategory.OTHER, AdvertisementType.RENT, city);
                 Thread.sleep(5_000);
             }
             log.info("Собрано объявлений [{} шт]", totalCount);
@@ -135,7 +135,7 @@ public class Parser {
         try {
             for (City city : City.values()) {
                 log.info("Собираем объявления о ПРОДАЖЕ в остальных категориях по городу {}", city.getDescription());
-                totalCount = totalCount + parse(AdvertisementCategory.OTHER, AdvertisementType.SALE, city);
+                totalCount = totalCount + parse(SubCategory.OTHER, AdvertisementType.SALE, city);
                 Thread.sleep(5_000);
             }
             log.info("Собрано объявлений [{} шт]", totalCount);
@@ -155,7 +155,7 @@ public class Parser {
      * @return кол-во собранных объявлений
      * @throws IOException если не смогли распарсить документ (HTML)
      */
-    private int parse(AdvertisementCategory category, AdvertisementType type, City city) throws IOException {
+    private int parse(SubCategory category, AdvertisementType type, City city) throws IOException {
         List<Advertisement> advertisements = new ArrayList<>();
         String url = getUrl(category, type, city);
         int totalPages = getTotalPages(url);
@@ -454,15 +454,15 @@ public class Parser {
      * @param city город объявления
      * @return ссылка
      */
-    private String getUrl(AdvertisementCategory category, AdvertisementType type, City city) {
+    private String getUrl(SubCategory category, AdvertisementType type, City city) {
         String url = "";
-        if (category == AdvertisementCategory.TRADING_AREA && type == AdvertisementType.SALE) {
+        if (category == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
             url = UrlUtils.getTradingAreaSaleUrl(city);
-        } else if (category == AdvertisementCategory.TRADING_AREA && type == AdvertisementType.RENT) {
+        } else if (category == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
             url = UrlUtils.getTradingAreaRentUrl(city);
-        } else if (category == AdvertisementCategory.OTHER && type == AdvertisementType.SALE) {
+        } else if (category == SubCategory.OTHER && type == AdvertisementType.SALE) {
             url = UrlUtils.getOtherCategoriesSaleUrl(city);
-        } else if (category == AdvertisementCategory.OTHER && type == AdvertisementType.RENT) {
+        } else if (category == SubCategory.OTHER && type == AdvertisementType.RENT) {
             url = UrlUtils.getOtherCategoriesRentUrl(city);
         }
         return url;

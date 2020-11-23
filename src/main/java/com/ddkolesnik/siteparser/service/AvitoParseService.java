@@ -1,7 +1,7 @@
 package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.model.Advertisement;
-import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
+import com.ddkolesnik.siteparser.utils.SubCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.City;
 import com.ddkolesnik.siteparser.utils.UrlUtils;
@@ -51,7 +51,7 @@ public class AvitoParseService {
      * @param maxPublishDate    дата последней публикации в базе данных
      * @return список объявлений
      */
-    public int parse(AdvertisementCategory category, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
+    public int parse(SubCategory category, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
         log.info("Начинаем собирать [{}] :: [{}] :: [{}]", category.getTitle(), advertisementType.getTitle(), city.getDescription());
         Map<String, LocalDate> links = new HashMap<>();
         String url = getUrl(category, advertisementType, city);
@@ -426,15 +426,15 @@ public class AvitoParseService {
      * @param city     город объявления
      * @return ссылка
      */
-    private String getUrl(AdvertisementCategory category, AdvertisementType type, City city) {
+    private String getUrl(SubCategory category, AdvertisementType type, City city) {
         String url = "";
-        if (category == AdvertisementCategory.TRADING_AREA && type == AdvertisementType.SALE) {
+        if (category == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
             url = UrlUtils.getTradingAreaSaleUrl(city);
-        } else if (category == AdvertisementCategory.TRADING_AREA && type == AdvertisementType.RENT) {
+        } else if (category == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
             url = UrlUtils.getTradingAreaRentUrl(city);
-        } else if (category == AdvertisementCategory.OTHER && type == AdvertisementType.SALE) {
+        } else if (category == SubCategory.OTHER && type == AdvertisementType.SALE) {
             url = UrlUtils.getOtherCategoriesSaleUrl(city);
-        } else if (category == AdvertisementCategory.OTHER && type == AdvertisementType.RENT) {
+        } else if (category == SubCategory.OTHER && type == AdvertisementType.RENT) {
             url = UrlUtils.getOtherCategoriesRentUrl(city);
         }
         return url;

@@ -1,6 +1,6 @@
 package com.ddkolesnik.siteparser.service;
 
-import com.ddkolesnik.siteparser.utils.AdvertisementCategory;
+import com.ddkolesnik.siteparser.utils.SubCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.City;
 import lombok.extern.slf4j.Slf4j;
@@ -53,18 +53,18 @@ public class ScheduledTask {
     }
 
     private int parse(LocalDate maxPublishDate) {
-        int count = avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, City.MOSCOW, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.RENT, City.MOSCOW, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.OTHER, AdvertisementType.SALE, City.MOSCOW, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.OTHER, AdvertisementType.RENT, City.MOSCOW, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, City.TYUMEN, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.RENT, City.TYUMEN, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.OTHER, AdvertisementType.SALE, City.TYUMEN, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.OTHER, AdvertisementType.RENT, City.TYUMEN, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.SALE, City.EKB, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.TRADING_AREA, AdvertisementType.RENT, City.EKB, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.OTHER, AdvertisementType.SALE, City.EKB, maxPublishDate);
-        count += avitoParseService.parse(AdvertisementCategory.OTHER, AdvertisementType.RENT, City.EKB, maxPublishDate);
+        int count = avitoParseService.parse(SubCategory.TRADING_AREA, AdvertisementType.SALE, City.MOSCOW, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.TRADING_AREA, AdvertisementType.RENT, City.MOSCOW, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.OTHER, AdvertisementType.SALE, City.MOSCOW, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.OTHER, AdvertisementType.RENT, City.MOSCOW, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.TRADING_AREA, AdvertisementType.SALE, City.TYUMEN, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.TRADING_AREA, AdvertisementType.RENT, City.TYUMEN, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.OTHER, AdvertisementType.SALE, City.TYUMEN, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.OTHER, AdvertisementType.RENT, City.TYUMEN, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.TRADING_AREA, AdvertisementType.SALE, City.EKB, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.TRADING_AREA, AdvertisementType.RENT, City.EKB, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.OTHER, AdvertisementType.SALE, City.EKB, maxPublishDate);
+        count += avitoParseService.parse(SubCategory.OTHER, AdvertisementType.RENT, City.EKB, maxPublishDate);
         return count;
     }
 

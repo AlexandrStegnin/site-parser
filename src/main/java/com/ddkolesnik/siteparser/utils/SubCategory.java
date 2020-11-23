@@ -4,7 +4,7 @@ package com.ddkolesnik.siteparser.utils;
  * @author Alexandr Stegnin
  */
 
-public enum AdvertisementCategory {
+public enum SubCategory {
 
     TRADING_AREA(1, "Торговые площади"),
     OTHER(2, "Остальные категории");
@@ -13,7 +13,7 @@ public enum AdvertisementCategory {
 
     private final String title;
 
-    AdvertisementCategory(int id, String title) {
+    SubCategory(int id, String title) {
         this.id = id;
         this.title = title;
     }
