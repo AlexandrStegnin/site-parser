@@ -1,10 +1,7 @@
 package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.model.Advertisement;
-import com.ddkolesnik.siteparser.utils.SubCategory;
-import com.ddkolesnik.siteparser.utils.AdvertisementType;
-import com.ddkolesnik.siteparser.utils.City;
-import com.ddkolesnik.siteparser.utils.UrlUtils;
+import com.ddkolesnik.siteparser.utils.*;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -47,14 +44,16 @@ public class AvitoParseService {
      * Собрать и записать информацию по объявлениям
      *
      * @param category          категория объявления
+     * @param subCategory подкатегория
+     * @param city город
      * @param advertisementType вид объявления
      * @param maxPublishDate    дата последней публикации в базе данных
      * @return список объявлений
      */
-    public int parse(SubCategory category, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
+    public int parse(AdvCategory category, SubCategory subCategory, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
         log.info("Начинаем собирать [{}] :: [{}] :: [{}]", category.getTitle(), advertisementType.getTitle(), city.getDescription());
         Map<String, LocalDate> links = new HashMap<>();
-        String url = getUrl(category, advertisementType, city);
+        String url = getUrl(category, subCategory, advertisementType, city);
         String pagePart = "&p=";
         int totalPages;
         if (maxPublishDate == null) {
@@ -421,21 +420,25 @@ public class AvitoParseService {
     /**
      * Получить ссылку для обработки в зависимости от фильтров
      *
-     * @param subCategory категория объявления
+     * @param category категория объявления
+     * @param subCategory подкатегория объявления
      * @param type     вид объявления
      * @param city     город объявления
      * @return ссылка
      */
-    private String getUrl(SubCategory subCategory, AdvertisementType type, City city) {
+    private String getUrl(AdvCategory category, SubCategory subCategory, AdvertisementType type, City city) {
         String url = "";
         if (subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
-            url = UrlUtils.getTradingAreaSaleUrl(city);
+            return UrlUtils.getTradingAreaSaleUrl(city);
         } else if (subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
-            url = UrlUtils.getTradingAreaRentUrl(city);
+            return UrlUtils.getTradingAreaRentUrl(city);
         } else if (subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
-            url = UrlUtils.getOtherCategoriesSaleUrl(city);
+            return UrlUtils.getOtherCategoriesSaleUrl(city);
         } else if (subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
-            url = UrlUtils.getOtherCategoriesRentUrl(city);
+            return UrlUtils.getOtherCategoriesRentUrl(city);
+        }
+        if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && type == AdvertisementType.RENT) {
+            return UrlUtils.getHouseCountryHouseCottageSaleUrl(city);
         }
         return url;
     }
