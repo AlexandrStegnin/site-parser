@@ -433,10 +433,13 @@ public class AvitoParseService {
             return UrlUtils.getOtherCategoriesSaleUrl(city);
         } else if (category == AdvCategory.COMMERCIAL_PROPERTY && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
             return UrlUtils.getOtherCategoriesRentUrl(city);
-        }
-        if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && type == AdvertisementType.SALE) {
+        } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
             return UrlUtils.getHouseCountryHouseCottageSaleUrl(city);
-        } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && type == AdvertisementType.RENT) {
+        } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
+            return UrlUtils.getHouseCountryHouseCottageRentUrl(city);
+        } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
+            return UrlUtils.getHouseCountryHouseCottageSaleUrl(city);
+        } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
             return UrlUtils.getHouseCountryHouseCottageRentUrl(city);
         }
         return url;
