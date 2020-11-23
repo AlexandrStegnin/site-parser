@@ -97,6 +97,26 @@ public class UrlUtils {
     }
 
     /**
+     * Ссылка на покупку/аренду в категории земельные участки
+     *
+     * @param city город
+     * @param type тип объявления
+     * @return ссылка
+     */
+    public static String getSteadUrl(City city, AdvertisementType type) {
+        String part = "";
+        switch (type) {
+            case RENT:
+                part = "sdam-ASgBAgICAUSWA9wQ&i=1";
+                break;
+            case SALE:
+                part = "prodam-ASgBAgICAUSWA9oQ&i=1";
+                break;
+        }
+        return generateUrl(city.getTitle(), AdvCategory.STEAD.getCategory(), part);
+    }
+
+    /**
      * Сгенерировать ссылку по шаблону
      *
      * @param city название города
