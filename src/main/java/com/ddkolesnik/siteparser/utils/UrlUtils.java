@@ -16,8 +16,6 @@ public class UrlUtils {
 
     private final static String TEMPLATE = "https://avito.ru/%s/%s/%s&s=104";
 
-    private static final String COMMERCIAL_PROPERTY = "kommercheskaya_nedvizhimost";
-
     private static final String PRICE_PART = "&pmin=";
 
     private UrlUtils() {
@@ -33,7 +31,7 @@ public class UrlUtils {
         String price = PRICE_PART.concat(city.getSalePrice());
         String part = "prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ" +
                 "&proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1" + price;
-        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
     }
 
     /**
@@ -46,7 +44,7 @@ public class UrlUtils {
         String price = PRICE_PART.concat(city.getRentPrice());
         String part = "sdam/magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" +
                 price + "&proprofile=1";
-        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
     }
 
     /**
@@ -60,7 +58,7 @@ public class UrlUtils {
         String part = "prodam-ASgBAgICAUSwCNJW?" +
                 "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + price +
                 "&proprofile=1&";
-        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
     }
 
     /**
@@ -73,7 +71,7 @@ public class UrlUtils {
         String price = PRICE_PART.concat(city.getSalePrice());
         String part = "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + price +
                 "&proprofile=1";
-        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
+        return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getUrl(), part);
     }
 
     public static String getHouseCountryHouseCottageUrl(City city) {
