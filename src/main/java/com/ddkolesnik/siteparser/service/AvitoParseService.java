@@ -438,9 +438,9 @@ public class AvitoParseService {
         } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
             return UrlUtils.getHouseCountryHouseCottageRentUrl(city);
         } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
-            return UrlUtils.getHouseCountryHouseCottageSaleUrl(city);
+            return UrlUtils.getSteadUrl(city, type);
         } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
-            return UrlUtils.getHouseCountryHouseCottageRentUrl(city);
+            return UrlUtils.getSteadUrl(city, type);
         }
         return url;
     }
