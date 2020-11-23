@@ -7,7 +7,8 @@ package com.ddkolesnik.siteparser.utils;
 public enum  AdvCategory {
 
     COMMERCIAL_PROPERTY("Коммерческая недвижимость", "kommercheskaya_nedvizhimost"),
-    HOUSE_COUNTRY_HOUSE_COTTAGE("Дома, дачи, коттеджи", "doma_dachi_kottedzhi");
+    HOUSE_COUNTRY_HOUSE_COTTAGE("Дома, дачи, коттеджи", "doma_dachi_kottedzhi"),
+    STEAD("Земельные участки", "zemelnye_uchastki");
 
     private final String title;
 
