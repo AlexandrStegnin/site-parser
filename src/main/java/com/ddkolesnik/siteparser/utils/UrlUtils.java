@@ -14,7 +14,11 @@ import java.security.cert.X509Certificate;
 
 public class UrlUtils {
 
-    private static final String BASE_URL = "https://avito.ru/";
+    private final static String TEMPLATE = "https://avito.ru/%s/%s/%s&s=104";
+
+    private static final String COMMERCIAL_PROPERTY = "kommercheskaya_nedvizhimost";
+
+    private static final String PRICE_PART = "&pmin=";
 
     private UrlUtils() {
     }
@@ -26,11 +30,10 @@ public class UrlUtils {
      * @return ссылка на страницу
      */
     public static String getTradingAreaSaleUrl(City city) {
-        String salePrice = city.getSalePrice();
-        String salePricePart = "?pmin=".concat(salePrice);
-        String partUrl = "/kommercheskaya_nedvizhimost/prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ" + salePricePart +
-                "&proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1&s=104";
-        return BASE_URL + city.getTitle() + partUrl;
+        String price = PRICE_PART.concat(city.getSalePrice());
+        String part = "prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ" +
+                "&proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1" + price;
+        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
     }
 
     /**
@@ -40,12 +43,10 @@ public class UrlUtils {
      * @return ссылка на страницу
      */
     public static String getTradingAreaRentUrl(City city) {
-        String rentPrice = city.getRentPrice();
-        String rentPricePart = "&pmin=".concat(rentPrice);
-        String partUrl = "/kommercheskaya_nedvizhimost/sdam/" +
-                "magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" + rentPricePart +
-                "&proprofile=1&s=104";
-        return BASE_URL + city.getTitle() + partUrl;
+        String price = PRICE_PART.concat(city.getRentPrice());
+        String part = "sdam/magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" +
+                price + "&proprofile=1";
+        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
     }
 
     /**
@@ -55,12 +56,11 @@ public class UrlUtils {
      * @return ссылка на страницу
      */
     public static String getOtherCategoriesSaleUrl(City city) {
-        String salePrice = city.getSalePrice();
-        String salePricePart = "&pmin=".concat(salePrice);
-        String partUrl = "/kommercheskaya_nedvizhimost/prodam-ASgBAgICAUSwCNJW?" +
-                "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + salePricePart +
-                "&proprofile=1&s=104";
-        return BASE_URL + city.getTitle() + partUrl;
+        String price = PRICE_PART.concat(city.getSalePrice());
+        String part = "prodam-ASgBAgICAUSwCNJW?" +
+                "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + price +
+                "&proprofile=1&";
+        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
     }
 
     /**
@@ -70,16 +70,26 @@ public class UrlUtils {
      * @return ссылка на страницу
      */
     public static String getOtherCategoriesRentUrl(City city) {
-        String rentPrice = city.getSalePrice();
-        String rentPricePart = "&pmin=".concat(rentPrice);
-        String partUrl = "/kommercheskaya_nedvizhimost/" +
-                "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + rentPricePart +
-                "&proprofile=1&s=104";
-        return BASE_URL + city.getTitle() + partUrl;
+        String price = PRICE_PART.concat(city.getSalePrice());
+        String part = "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + price +
+                "&proprofile=1";
+        return generateUrl(city.getTitle(), COMMERCIAL_PROPERTY, part);
     }
 
     public static String getHouseCountryHouseCottageUrl(City city) {
-        return BASE_URL;
+        return "";
+    }
+
+    /**
+     * Сгенерировать ссылку по шаблону
+     *
+     * @param city название города
+     * @param category категория
+     * @param part
+     * @return
+     */
+    private static String generateUrl(String city, String category, String part) {
+        return String.format(TEMPLATE, city, category, part);
     }
 
 
