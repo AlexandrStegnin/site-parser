@@ -421,20 +421,20 @@ public class AvitoParseService {
     /**
      * Получить ссылку для обработки в зависимости от фильтров
      *
-     * @param category категория объявления
+     * @param subCategory категория объявления
      * @param type     вид объявления
      * @param city     город объявления
      * @return ссылка
      */
-    private String getUrl(SubCategory category, AdvertisementType type, City city) {
+    private String getUrl(SubCategory subCategory, AdvertisementType type, City city) {
         String url = "";
-        if (category == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
+        if (subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.SALE) {
             url = UrlUtils.getTradingAreaSaleUrl(city);
-        } else if (category == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
+        } else if (subCategory == SubCategory.TRADING_AREA && type == AdvertisementType.RENT) {
             url = UrlUtils.getTradingAreaRentUrl(city);
-        } else if (category == SubCategory.OTHER && type == AdvertisementType.SALE) {
+        } else if (subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
             url = UrlUtils.getOtherCategoriesSaleUrl(city);
-        } else if (category == SubCategory.OTHER && type == AdvertisementType.RENT) {
+        } else if (subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
             url = UrlUtils.getOtherCategoriesRentUrl(city);
         }
         return url;
