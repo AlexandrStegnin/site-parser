@@ -138,6 +138,7 @@ public class AvitoParseService {
             advertisement.setDescription(getDescription(document));
             advertisement.setDateCreate(getDateCreate(document));
             advertisement.setPublishDate(publishDate);
+            advertisement.setCity(city.getDescription());
             setSellerInfo(document, advertisement);
         } catch (HttpStatusException e) {
             waiting(e);
