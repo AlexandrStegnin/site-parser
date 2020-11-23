@@ -107,10 +107,10 @@ public class UrlUtils {
         String part = "";
         switch (type) {
             case RENT:
-                part = "sdam-ASgBAgICAUSWA9wQ&i=1";
+                part = "sdam-ASgBAgICAUSWA9wQ?i=1";
                 break;
             case SALE:
-                part = "prodam-ASgBAgICAUSWA9oQ&i=1";
+                part = "prodam-ASgBAgICAUSWA9oQ?i=1";
                 break;
         }
         return generateUrl(city.getTitle(), AdvCategory.STEAD.getCategory(), part);
