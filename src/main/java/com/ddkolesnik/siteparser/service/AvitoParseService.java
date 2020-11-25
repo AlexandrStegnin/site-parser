@@ -2,9 +2,9 @@ package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.utils.*;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptJobManager;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.HttpStatusException;
@@ -404,6 +404,7 @@ public class AvitoParseService {
         }
         HtmlPage page = null;
         try {
+            webClient.setAjaxController(new NicelyResynchronizingAjaxController());
             page = webClient.getPage(url);
         }  catch (HttpStatusException e) {
             waiting(e);
@@ -411,14 +412,7 @@ public class AvitoParseService {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
         }
         if (page != null) {
-            JavaScriptJobManager manager = page.getEnclosingWindow().getJobManager();
-            while (manager.getJobCount() > 0) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    log.error("Произошла ошибка: " + e.getLocalizedMessage());
-                }
-            }
+            webClient.waitForBackgroundJavaScript(timer);
             return Jsoup.parse(page.asXml());
         }
         return null;
