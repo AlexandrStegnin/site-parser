@@ -2,8 +2,9 @@ package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.model.Advertisement;
 import com.ddkolesnik.siteparser.utils.*;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.AjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -402,18 +403,21 @@ public class AvitoParseService {
         } catch (InterruptedException e) {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
         }
-        HtmlPage page = null;
+        HtmlPage page;
         try {
-            webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+            webClient.setAjaxController(new AjaxController(){
+                @Override
+                public boolean processSynchron(HtmlPage page, WebRequest request, boolean async) {
+                    return true;
+                }
+            });
             page = webClient.getPage(url);
+            webClient.waitForBackgroundJavaScript(10 * 1000);
+            return Jsoup.parse(page.asXml());
         }  catch (HttpStatusException e) {
             waiting(e);
         } catch (Exception e) {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
-        }
-        if (page != null) {
-            webClient.waitForBackgroundJavaScript(timer);
-            return Jsoup.parse(page.asXml());
         }
         return null;
     }
