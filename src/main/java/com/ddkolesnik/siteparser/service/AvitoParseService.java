@@ -493,7 +493,7 @@ public class AvitoParseService {
         if (checkArea(address, city)) {
             return checkCity(address, city);
         }
-        return true;
+        return false;
     }
 
     /**
