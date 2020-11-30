@@ -85,17 +85,14 @@ public class AvitoParseService {
         Document document;
         document = getDocument(url);
         if (document != null) {
-            Elements aSnippetLinks = document.select("a.snippet-link");
-            for (Element element : aSnippetLinks) {
-                Elements el = element.getElementsByAttributeValue("itemprop", "url");
-                String href = el.select("a[href]").attr("href");
-                if (!href.trim().isEmpty()) {
-                    LocalDate advCreateDate = extractDate(element);
-                    if (maxPublishDate != null && advCreateDate != null && advCreateDate.isBefore(maxPublishDate)) {
-                        return links;
-                    }
-                    links.put(href.trim(), advCreateDate);
+            Elements divs = document.select("div[data-marker=item]");
+            for (Element element : divs) {
+                LocalDate advCreateDate = extractDate(element);
+                if (maxPublishDate != null && advCreateDate != null && advCreateDate.isBefore(maxPublishDate)) {
+                    return links;
                 }
+                String href = element.selectFirst("a[itemprop=url]").select("a[href]").attr("href");
+                links.put(href.trim(), advCreateDate);
             }
         }
         return links;
@@ -408,10 +405,19 @@ public class AvitoParseService {
             webClient.setAjaxController(new AjaxController(){
                 @Override
                 public boolean processSynchron(HtmlPage page, WebRequest request, boolean async) {
-                    return true;
+                    return false;
                 }
             });
             page = webClient.getPage(url);
+            for (int i = 0; i < 20; i++) {
+                if (page.asXml().contains("data-marker=\"item\"")) {
+                    break;
+                }
+                synchronized (page) {
+                    page.wait(500);
+                }
+            }
+
             webClient.waitForBackgroundJavaScript(10 * 1000);
             return Jsoup.parse(page.asXml());
         }  catch (HttpStatusException e) {
@@ -441,13 +447,9 @@ public class AvitoParseService {
             return UrlUtils.getOtherCategoriesSaleUrl(city);
         } else if (category == AdvCategory.COMMERCIAL_PROPERTY && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
             return UrlUtils.getOtherCategoriesRentUrl(city);
-        } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
-            return UrlUtils.getHouseCountryHouseCottageSaleUrl(city);
-        } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
-            return UrlUtils.getHouseCountryHouseCottageRentUrl(city);
-        } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER && type == AdvertisementType.SALE) {
-            return UrlUtils.getSteadUrl(city, type);
-        } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER && type == AdvertisementType.RENT) {
+        } else if (category == AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE && subCategory == SubCategory.OTHER) {
+            return UrlUtils.getHouseCountryHouseCottageUrl(city, type);
+        } else if (category == AdvCategory.STEAD && subCategory == SubCategory.OTHER) {
             return UrlUtils.getSteadUrl(city, type);
         }
         return url;
@@ -460,11 +462,11 @@ public class AvitoParseService {
      * @return дата публикации
      */
     private LocalDate extractDate(Element element) {
-        Element divDateEl = element.parent().parent().parent().selectFirst("div.snippet-date-info");
+        Element divDateEl = element.selectFirst("div[data-marker=item-date]");
         if (divDateEl == null) {
             return null;
         }
-        String dateCreate = divDateEl.attr("data-tooltip");
+        String dateCreate = divDateEl.text();
         if (dateCreate == null || dateCreate.isEmpty()) {
             return null;
         }
