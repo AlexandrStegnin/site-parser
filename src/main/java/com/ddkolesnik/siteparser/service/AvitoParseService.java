@@ -470,6 +470,15 @@ public class AvitoParseService {
         if (dateCreate == null || dateCreate.isEmpty()) {
             return null;
         }
+        if (checkHoursBefore(dateCreate) || checkMinutesBefore(dateCreate)) {
+            return LocalDate.now();
+        }
+        if (checkDaysBefore(dateCreate)) {
+            return parseDaysBefore(dateCreate);
+        }
+        if (checkWeeksBefore(dateCreate)) {
+            return parseWeeksBefore(dateCreate);
+        }
         SimpleDateFormat format = new SimpleDateFormat("dd MMM hh:mm", Locale.forLanguageTag("RU"));
         try {
             Date parsedDate = format.parse(dateCreate);
@@ -477,6 +486,88 @@ public class AvitoParseService {
             return LocalDate.of(LocalDate.now().getYear(), finalDate.getMonth(), finalDate.getDayOfMonth());
         } catch (ParseException e) {
             log.error("Произошла ошибка: {}", e.getLocalizedMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Проверить, может объявление создавалось несколько минут назад
+     *
+     * @param strDate дата создания объявления в виде строки (3 минуты назад)
+     * @return результат
+     */
+    private boolean checkMinutesBefore(String strDate) {
+        Pattern pattern = Pattern.compile("минут([аыу])? назад");
+        Matcher matcher = pattern.matcher(strDate);
+        return matcher.find();
+    }
+
+    /**
+     * Проверить, может объявление создавалось несколько часов назад
+     *
+     * @param strDate дата создания объявления в виде строки (3 часа назад)
+     * @return результат
+     */
+    private boolean checkHoursBefore(String strDate) {
+        Pattern pattern = Pattern.compile("час(ов|а)? назад");
+        Matcher matcher = pattern.matcher(strDate);
+        return matcher.find();
+    }
+
+    /**
+     * Проверить, может объявление создавалось несколько дней назад
+     *
+     * @param strDate дата создания объявления в виде строки (3 дня назад)
+     * @return результат проверки
+     */
+    private boolean checkDaysBefore(String strDate) {
+        Pattern pattern = Pattern.compile("(день|дней|дня) назад");
+        Matcher matcher = pattern.matcher(strDate);
+        return matcher.find();
+    }
+
+    /**
+     * Проверить, может объявление создавалось несколько недель назад
+     *
+     * @param strDate дата создания объявления в виде строки (3 недели назад)
+     * @return результат проверки
+     */
+    private boolean checkWeeksBefore(String strDate) {
+        Pattern pattern = Pattern.compile("(недел([ьяию])) назад");
+        Matcher matcher = pattern.matcher(strDate);
+        return matcher.find();
+    }
+
+    /**
+     * Получить дату из строки формата (N дней назад)
+     *
+     * @param dateCreate дата создания объявления в виде строки (3 дня назад)
+     * @return дата
+     */
+    private LocalDate parseDaysBefore(String dateCreate) {
+        try {
+            LocalDate date = LocalDate.now();
+            String minusDays = dateCreate.replaceAll("\\D", "");
+            return date.minusDays(Integer.parseInt(minusDays));
+        } catch (NumberFormatException e) {
+            log.warn("Ошибка получения даты: " + dateCreate);
+            return null;
+        }
+    }
+
+    /**
+     * Получить дату из строки формата (N недель назад)
+     *
+     * @param dateCreate дата создания объявления в виде строки (3 недели назад)
+     * @return дата
+     */
+    private LocalDate parseWeeksBefore(String dateCreate) {
+        try {
+            LocalDate date = LocalDate.now();
+            String minusWeeks = dateCreate.replaceAll("\\D", "");
+            return date.minusWeeks(Integer.parseInt(minusWeeks));
+        } catch (NumberFormatException e) {
+            log.warn("Ошибка получения даты: " + dateCreate);
             return null;
         }
     }
