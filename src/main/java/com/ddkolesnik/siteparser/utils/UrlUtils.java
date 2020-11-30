@@ -29,8 +29,7 @@ public class UrlUtils {
      */
     public static String getTradingAreaSaleUrl(City city) {
         String price = PRICE_PART.concat(city.getSalePrice());
-        String part = "prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ" +
-                "&proprofile=1&f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1" + price;
+        String part = "prodam/magazin-ASgBAQICAUSwCNJWAUCGCRSQXQ?f=ASgBAQICAkSwCNJW8hKg2gEBQIYJFJBd&i=1" + price;
         return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
@@ -42,8 +41,7 @@ public class UrlUtils {
      */
     public static String getTradingAreaRentUrl(City city) {
         String price = PRICE_PART.concat(city.getRentPrice());
-        String part = "sdam/magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?cd=1&f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ" +
-                price + "&proprofile=1";
+        String part = "sdam/magazin-ASgBAQICAUSwCNRWAUDUCBS8WQ?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIFLxZ&i=1" + price;
         return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
@@ -55,9 +53,7 @@ public class UrlUtils {
      */
     public static String getOtherCategoriesSaleUrl(City city) {
         String price = PRICE_PART.concat(city.getSalePrice());
-        String part = "prodam-ASgBAgICAUSwCNJW?" +
-                "f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + price +
-                "&proprofile=1&";
+        String part = "prodam-ASgBAgICAUSwCNJW?f=ASgBAQICAkSwCNJW8hKg2gEBQIYJRIqsAcD_AY5dil0" + price;
         return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
@@ -69,30 +65,27 @@ public class UrlUtils {
      */
     public static String getOtherCategoriesRentUrl(City city) {
         String price = PRICE_PART.concat(city.getSalePrice());
-        String part = "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + price +
-                "&proprofile=1";
+        String part = "sdam-ASgBAgICAUSwCNRW?f=ASgBAQICAkSwCNRW9BKk2gEBQNQIRIysAb7_AbpZtlk" + price;
         return generateUrl(city.getTitle(), AdvCategory.COMMERCIAL_PROPERTY.getCategory(), part);
     }
 
     /**
-     * Ссылка на покупку в категории дома, дачи, коттеджи
+     * Получить ссылку на дома, дачи, коттеджи
      *
      * @param city город
+     * @param type тип объявления
      * @return ссылка
      */
-    public static String getHouseCountryHouseCottageSaleUrl(City city) {
-        String part = "prodam-ASgBAgICAUSUA9AQ?cd=1&i=1";
-        return generateUrl(city.getTitle(), AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE.getCategory(), part);
-    }
-
-    /**
-     * Ссылка на аренду в категории дома, дачи, коттеджи
-     *
-     * @param city город
-     * @return ссылка
-     */
-    public static String getHouseCountryHouseCottageRentUrl(City city) {
-        String part = "sdam-ASgBAgICAUSUA9IQ?cd=1&i=1";
+    public static String getHouseCountryHouseCottageUrl(City city, AdvertisementType type) {
+        String part = "";
+        switch (type) {
+            case RENT:
+                part = "sdam-ASgBAgICAUSUA9IQ?cd=1&i=1";
+                break;
+            case SALE:
+                part = "prodam-ASgBAgICAUSUA9AQ?cd=1&i=1";
+                break;
+        }
         return generateUrl(city.getTitle(), AdvCategory.HOUSE_COUNTRY_HOUSE_COTTAGE.getCategory(), part);
     }
 
