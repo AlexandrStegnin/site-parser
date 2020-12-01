@@ -130,7 +130,7 @@ public class AvitoParseService {
         }
         advertisement = new Advertisement();
         advertisement.setAdvType(advertisementType.getTitle());
-        advertisement.setTitle(getTitle(document));
+        advertisement.setTitle(title);
         advertisement.setLink(link);
         advertisement.setArea(getArea(document));
         advertisement.setPrice(getPrice(document));
