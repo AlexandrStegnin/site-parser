@@ -53,7 +53,7 @@ public class AvitoParseService {
      * @return список объявлений
      */
     public int parse(AdvCategory category, SubCategory subCategory, AdvertisementType advertisementType, City city, LocalDate maxPublishDate) {
-        log.info("Начинаем собирать [{}] :: [{}] :: [{}]", category.getTitle(), advertisementType.getTitle(), city.getDescription());
+        log.info("Начинаем собирать [{}] :: [{}] :: [{}] :: [{}]", category.getTitle(), subCategory.getTitle(), advertisementType.getTitle(), city.getDescription());
         Map<String, LocalDate> links = new HashMap<>();
         String url = getUrl(category, subCategory, advertisementType, city);
         String pagePart = "&p=";
@@ -160,6 +160,15 @@ public class AvitoParseService {
             } catch (InterruptedException exception) {
                 log.error(String.format("Произошла ошибка: [%s]", exception));
             }
+        }
+    }
+
+    private void waiting() {
+        log.info("Засыпаем на 60 мин для обхода блокировки");
+        try {
+            Thread.sleep(60 * 1000 * 60);
+        } catch (InterruptedException exception) {
+            log.error(String.format("Произошла ошибка: [%s]", exception));
         }
     }
 
@@ -406,13 +415,16 @@ public class AvitoParseService {
         }
         HtmlPage page;
         try {
-            webClient.setAjaxController(new AjaxController(){
+            webClient.setAjaxController(new AjaxController() {
                 @Override
                 public boolean processSynchron(HtmlPage page, WebRequest request, boolean async) {
                     return true;
                 }
             });
             page = webClient.getPage(url);
+            if (page.asText().toLowerCase().contains("доступ временно заблокирован")) {
+                waiting();
+            }
             for (int i = 0; i < 20; i++) {
                 if (page.asXml().contains("data-marker=\"item\"")) {
                     break;
@@ -424,7 +436,7 @@ public class AvitoParseService {
 
             webClient.waitForBackgroundJavaScript(10 * 1000);
             return Jsoup.parse(page.asXml());
-        }  catch (HttpStatusException e) {
+        } catch (HttpStatusException e) {
             waiting(e);
         } catch (Exception e) {
             log.error("Произошла ошибка: " + e.getLocalizedMessage());
