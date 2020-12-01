@@ -113,16 +113,19 @@ public class AvitoParseService {
         Advertisement advertisement;
         Document document = getDocument(url);
         if (document == null) {
+            log.warn("Не удалось получить страницу [{}]", url);
             return;
         }
         String address = getAddress(document);
         if (category == AdvCategory.COMMERCIAL_PROPERTY) {
             if (!checkAddress(address, city)) {
+                log.warn("Адресс не валидный. [{}] :: [{}]", city.getDescription(), address);
                 return;
             }
         }
         String title = getTitle(document);
         if (title == null) {
+            log.warn("Отсутствует название объявления [{}]", url);
             return;
         }
         advertisement = new Advertisement();
@@ -140,6 +143,7 @@ public class AvitoParseService {
         advertisement.setCategory(category.getTitle());
         setSellerInfo(document, advertisement);
         advertisementService.create(advertisement);
+        log.info("Сохранили объявление: {}", advertisement);
     }
 
     /**
