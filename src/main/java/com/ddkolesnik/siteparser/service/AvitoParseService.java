@@ -143,7 +143,7 @@ public class AvitoParseService {
         advertisement.setCategory(category.getTitle());
         setSellerInfo(document, advertisement);
         advertisementService.create(advertisement);
-        log.info("Сохранили объявление: {}", advertisement);
+        log.info("Сохранили объявление: {}", advertisement.getId());
     }
 
     /**
@@ -600,9 +600,9 @@ public class AvitoParseService {
             return true;
         }
         if (checkArea(address, city)) {
-            return checkCity(address, city);
+            return true;
         }
-        return false;
+        return checkCity(address, city);
     }
 
     /**
