@@ -217,15 +217,25 @@ public class AvitoParseService {
         Elements areaEl = document.select("div.item-params");
         if (areaEl != null) {
             Elements areas = areaEl.select("span");
-            if (areas.size() == 6) {
-                area = areaEl.select("li").text().split(":")[1].replaceAll("[^\\d.]", "");
-            } else {
-                Element areaFirstEl = areaEl.select("span").first();
-                if (areaFirstEl != null) {
-                    String[] areaParts = areaFirstEl.text().split(":");
-                    if (areaParts.length > 1) {
-                        area = areaParts[1].replaceAll("[^\\d.]", "");
+            if (areas != null) {
+                if (areas.size() == 6) {
+                    area = areaEl.select("li").text().split(":")[1].replaceAll("[^\\d.]", "");
+                } else {
+                    Element areaFirstEl = areaEl.select("span").first();
+                    if (areaFirstEl != null) {
+                        String[] areaParts = areaFirstEl.text().split(":");
+                        if (areaParts.length > 1) {
+                            area = areaParts[1].replaceAll("[^\\d.]", "");
+                            if (area.endsWith(".")) {
+                                area = area.substring(0, area.length() - 1);
+                            }
+                        }
                     }
+                }
+            } else {
+                Element liArea = areaEl.select("li.item-params-list-item").first();
+                if (liArea != null) {
+                    area = liArea.text().replaceAll("[^\\d.]", "");
                 }
             }
         }
