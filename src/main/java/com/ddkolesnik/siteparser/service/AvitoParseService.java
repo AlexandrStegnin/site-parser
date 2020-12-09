@@ -496,7 +496,7 @@ public class AvitoParseService {
         if (dateCreate == null || dateCreate.isEmpty()) {
             return null;
         }
-        if (checkHoursBefore(dateCreate) || checkMinutesBefore(dateCreate)) {
+        if (checkHoursBefore(dateCreate) || checkMinutesBefore(dateCreate) || checkSecondsBefore(dateCreate)) {
             return LocalDate.now();
         }
         if (checkDaysBefore(dateCreate)) {
@@ -514,6 +514,18 @@ public class AvitoParseService {
             log.error("Произошла ошибка: {}", e.getLocalizedMessage());
             return null;
         }
+    }
+
+    /**
+     * Проверить, может объявление создавалось несколько секунд назад
+     *
+     * @param strDate дата создания объявления в виде строки (3 секунды назад)
+     * @return результат проверки
+     */
+    private boolean checkSecondsBefore(String strDate) {
+        Pattern pattern = Pattern.compile("(секунд([ыу])) назад");
+        Matcher matcher = pattern.matcher(strDate);
+        return matcher.find();
     }
 
     /**
