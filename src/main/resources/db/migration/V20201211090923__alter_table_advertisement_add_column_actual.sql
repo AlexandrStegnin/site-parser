@@ -1,0 +1,1 @@
+ALTER TABLE advertisement ADD COLUMN actual BOOL NOT NULL DEFAULT false;
