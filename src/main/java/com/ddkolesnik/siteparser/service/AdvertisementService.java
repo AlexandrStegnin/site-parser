@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author Alexandr Stegnin
@@ -28,24 +27,16 @@ public class AdvertisementService {
         advertisementRepository.save(advertisement);
     }
 
-    public List<Advertisement> findAll() {
-        return advertisementRepository.findAll();
-    }
-
     public long count() {
         return advertisementRepository.count();
     }
 
-    public void deleteAll() {
-        advertisementRepository.deleteAll();
-    }
-
-    public void deleteOld(LocalDateTime currentDate) {
-        advertisementRepository.deleteOld(currentDate);
-    }
-
     public LocalDate getMaxPublishDate() {
         return advertisementRepository.getMaxPublishDate();
+    }
+
+    public void setNotActual(LocalDateTime currentDate) {
+        advertisementRepository.setNotActual(currentDate);
     }
 
 }

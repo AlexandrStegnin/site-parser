@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
 
-    @Modifying
-    @Query("DELETE FROM Advertisement adv WHERE adv.creationTime < :currentDate")
-    void deleteOld(@Param("currentDate") LocalDateTime currentDate);
-
     @Query("SELECT MAX(adv.publishDate) FROM Advertisement adv")
     LocalDate getMaxPublishDate();
+
+    @Modifying
+    @Query("UPDATE Advertisement adv SET adv.actual = FALSE WHERE adv.creationTime < :currentDate")
+    void setNotActual(@Param("currentDate") LocalDateTime currentDate);
 
 }

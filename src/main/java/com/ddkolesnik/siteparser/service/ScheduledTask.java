@@ -1,9 +1,9 @@
 package com.ddkolesnik.siteparser.service;
 
 import com.ddkolesnik.siteparser.utils.AdvCategory;
-import com.ddkolesnik.siteparser.utils.SubCategory;
 import com.ddkolesnik.siteparser.utils.AdvertisementType;
 import com.ddkolesnik.siteparser.utils.City;
+import com.ddkolesnik.siteparser.utils.SubCategory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -48,8 +48,8 @@ public class ScheduledTask {
         log.info("Начинаем ЕЖЕНЕДЕЛЬНЫЙ сбор объявлений");
         int count = parse(null);
         log.info("Завершено, собрано объявлений [{} шт]", count);
-        log.info("Удаляем данные старше {}", now);
-        advertisementService.deleteOld(now);
+        log.info("Делаем неактивными данные старше {}", now);
+        advertisementService.setNotActual(now);
         log.info("Завершено");
     }
 
