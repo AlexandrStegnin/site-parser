@@ -67,4 +67,8 @@ public class Advertisement extends AbstractEntity {
 
     @Column(name = "category")
     private String category;
+
+    @Column(name = "actual")
+    private boolean actual = true;
+
 }
