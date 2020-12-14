@@ -523,7 +523,7 @@ public class AvitoParseService {
      * @return результат проверки
      */
     private boolean checkSecondsBefore(String strDate) {
-        Pattern pattern = Pattern.compile("(секунд([ыу])) назад");
+        Pattern pattern = Pattern.compile("(секунд([ыу])?) назад");
         Matcher matcher = pattern.matcher(strDate);
         return matcher.find();
     }
