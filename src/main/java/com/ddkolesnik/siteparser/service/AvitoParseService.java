@@ -444,7 +444,7 @@ public class AvitoParseService {
                 }
             }
 
-            webClient.waitForBackgroundJavaScript(10 * 1000);
+//            webClient.waitForBackgroundJavaScript(10 * 1000);
             return Jsoup.parse(page.asXml());
         } catch (HttpStatusException e) {
             waiting(e);
@@ -511,8 +511,15 @@ public class AvitoParseService {
             LocalDate finalDate = parsedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             return LocalDate.of(LocalDate.now().getYear(), finalDate.getMonth(), finalDate.getDayOfMonth());
         } catch (ParseException e) {
-            log.error("Произошла ошибка: {}", e.getLocalizedMessage());
-            return null;
+            SimpleDateFormat fullFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.forLanguageTag("RU"));
+            try {
+                Date parsedDate = fullFormat.parse(dateCreate);
+                LocalDate finalDate = parsedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                return LocalDate.of(LocalDate.now().getYear(), finalDate.getMonth(), finalDate.getDayOfMonth());
+            } catch (ParseException ex) {
+                log.error("Произошла ошибка: {}", ex.getLocalizedMessage());
+                return null;
+            }
         }
     }
 
