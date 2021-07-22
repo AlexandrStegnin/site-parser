@@ -393,8 +393,15 @@ public class AvitoParseService {
    * @param url адрес страницы
    * @return объект страницы HTML
    */
-  public Document getDocument(String url) {
-    return scraperApiService.getDocument(url);
+  private Document getDocument(String url) {
+    int retrieveCount = 5;
+    Document document = scraperApiService.getDocument(url);
+    while (document.text().toLowerCase(Locale.ROOT).contains("подозрительная") && retrieveCount > 0) {
+      log.warn("Страница не доступна, пробуем повторить. {}", url);
+      document = scraperApiService.getDocument(url);
+      retrieveCount--;
+    }
+    return document;
   }
 
   /**
