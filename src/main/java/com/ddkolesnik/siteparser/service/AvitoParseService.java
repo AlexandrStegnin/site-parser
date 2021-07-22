@@ -91,7 +91,7 @@ public class AvitoParseService {
       Elements divs = document.select("div[data-marker=item]");
       divs.forEach(div -> {
         LocalDate advCreateDate = extractDate(div);
-        if (Objects.nonNull(maxPublishDate) && Objects.nonNull(advCreateDate) && advCreateDate.isAfter(maxPublishDate)) {
+        if (Objects.nonNull(maxPublishDate) && Objects.nonNull(advCreateDate) && advCreateDate.isBefore(maxPublishDate)) {
           return;
         }
         Element urlEl = div.selectFirst("a[itemprop=url]");
