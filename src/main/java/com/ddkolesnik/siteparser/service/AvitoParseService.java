@@ -131,10 +131,6 @@ public class AvitoParseService {
       }
     }
     String title = getTitle(document);
-    if (Objects.isNull(title)) {
-      log.warn("Отсутствует название объявления [{}]", url);
-      return;
-    }
     advertisement = Advertisement.builder()
         .advType(advertisementType.getTitle())
         .title(title)
