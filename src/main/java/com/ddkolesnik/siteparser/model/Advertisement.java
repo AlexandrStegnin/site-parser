@@ -1,11 +1,14 @@
 package com.ddkolesnik.siteparser.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Alexandr Stegnin
@@ -13,6 +16,9 @@ import java.time.LocalDate;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "advertisement")
 @EqualsAndHashCode(callSuper = true)
 public class Advertisement extends AbstractEntity {

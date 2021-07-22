@@ -4,6 +4,9 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebClientOptions;
+import com.scraperapi.ScraperApiClient;
+import kong.unirest.Unirest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +16,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AppConfig {
+
+    @Value("${scraper.api.key}")
+    String scraperApiKey;
 
     @Bean
     public WebClient webClient() {
@@ -30,6 +36,12 @@ public class AppConfig {
         options.setThrowExceptionOnScriptError(false);
         options.setPrintContentOnFailingStatusCode(false);
         options.setThrowExceptionOnFailingStatusCode(false);
+    }
+
+    @Bean
+    public ScraperApiClient scraperApiClient() {
+        Unirest.config().socketTimeout(0).connectTimeout(0);
+        return new ScraperApiClient(scraperApiKey);
     }
 
 }
