@@ -115,6 +115,8 @@ public class AvitoParseService {
    */
   public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate, City city,
                                  AdvCategory category) {
+    int retrieveCount = 5;
+    String oldUrl = url;
     url = "https://avito.ru" + url;
     String link = url;
     Advertisement advertisement;
@@ -122,6 +124,11 @@ public class AvitoParseService {
     if (Objects.isNull(document)) {
       log.warn("Не удалось получить страницу [{}]", url);
       return;
+    }
+    while (document.text().toLowerCase(Locale.ROOT).contains("подозрительную") || retrieveCount == 0) {
+      log.warn("Страница не доступна, пробуем повторить. {}", oldUrl);
+      document = getDocument(oldUrl);
+      retrieveCount--;
     }
     String address = getAddress(document);
     if (category == AdvCategory.COMMERCIAL_PROPERTY) {
