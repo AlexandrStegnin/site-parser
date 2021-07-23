@@ -69,7 +69,6 @@ public class AvitoParseService {
     }
     int pageNumber = 1;
     while (pageNumber <= totalPages) {
-      log.info("Собираем ссылки со страницы {} из {}", pageNumber, totalPages);
       links.putAll(getLinks(url.concat(pagePart).concat(String.valueOf(pageNumber)), maxPublishDate));
       pageNumber++;
     }
@@ -115,21 +114,10 @@ public class AvitoParseService {
    */
   public void parseAdvertisement(String url, AdvertisementType advertisementType, LocalDate publishDate, City city,
                                  AdvCategory category) {
-    int retrieveCount = 5;
-    String oldUrl = url;
     url = "https://avito.ru" + url;
     String link = url;
     Advertisement advertisement;
     Document document = getDocument(url);
-    if (Objects.isNull(document)) {
-      log.warn("Не удалось получить страницу [{}]", url);
-      return;
-    }
-    while (document.text().toLowerCase(Locale.ROOT).contains("подозрительную") || retrieveCount == 0) {
-      log.warn("Страница не доступна, пробуем повторить. {}", oldUrl);
-      document = getDocument(oldUrl);
-      retrieveCount--;
-    }
     String address = getAddress(document);
     if (category == AdvCategory.COMMERCIAL_PROPERTY) {
       if (!checkAddress(address, city)) {
@@ -397,7 +385,7 @@ public class AvitoParseService {
     int retrieveCount = 5;
     Document document = scraperApiService.getDocument(url);
     while (document.text().toLowerCase(Locale.ROOT).contains("подозрительная") && retrieveCount > 0) {
-      log.warn("Страница не доступна, пробуем повторить. {}", url);
+      log.warn("Страница [{}] не доступна, пробуем повторить. Осталось попыток {}", url, retrieveCount);
       document = scraperApiService.getDocument(url);
       retrieveCount--;
     }
@@ -443,7 +431,7 @@ public class AvitoParseService {
    */
   private LocalDate extractDate(Element element) {
     Element divDateEl = element.selectFirst("div[data-marker=item-date]");
-    if (divDateEl == null) {
+    if (Objects.isNull(divDateEl)) {
       return null;
     }
     String dateCreate = divDateEl.text();
