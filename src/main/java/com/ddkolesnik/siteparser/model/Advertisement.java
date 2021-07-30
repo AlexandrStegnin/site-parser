@@ -75,6 +75,7 @@ public class Advertisement extends AbstractEntity {
     private String category;
 
     @Column(name = "actual")
+    @Builder.Default
     private boolean actual = true;
 
 }
