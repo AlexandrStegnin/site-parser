@@ -126,6 +126,9 @@ public class AvitoParseService {
       }
     }
     String title = getTitle(document);
+    if (Objects.isNull(title)) {
+      return;
+    }
     advertisement = Advertisement.builder()
         .advType(advertisementType.getTitle())
         .title(title)

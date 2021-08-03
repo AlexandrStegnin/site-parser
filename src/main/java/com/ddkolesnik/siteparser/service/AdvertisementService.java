@@ -39,4 +39,8 @@ public class AdvertisementService {
         advertisementRepository.setNotActual(currentDate);
     }
 
+    public void delete(LocalDateTime currentDate) {
+        advertisementRepository.deleteByCreationTimeBefore(currentDate);
+    }
+
 }

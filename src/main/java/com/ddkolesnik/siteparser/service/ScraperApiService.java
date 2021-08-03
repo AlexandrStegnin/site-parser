@@ -27,7 +27,7 @@ public class ScraperApiService {
   }
 
   public String getResponse(String url) {
-    return client.get(url).timeout(0).render(true).result();
+    return client.get(url).timeout(0).result();
   }
 
   public void reset() {

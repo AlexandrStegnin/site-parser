@@ -24,4 +24,6 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
     @Query("UPDATE Advertisement adv SET adv.actual = FALSE WHERE adv.creationTime < :currentDate")
     void setNotActual(@Param("currentDate") LocalDateTime currentDate);
 
+    void deleteByCreationTimeBefore(LocalDateTime currentDate);
+
 }
